@@ -1129,5 +1129,678 @@ const quizData = [
         ],
         answerIndex: 1,
         explanation: "(B) All-Purposeクラスター（汎用クラスター）は開発・対話型実行向けであり、時間あたりの単価 (DBU) が高く設定されています。本番環境のスケジュールジョブには、実行時のみ起動して終了し、単価も安価な「ジョブクラスター (Job Cluster)」を使用するのがコスト削減のベストプラクティスです。"
+    },
+    {
+        question: "問題 101:\nデータエンジニアは、さまざまなデータソースにリンクされた複数の外部テーブルを管理しています。データエンジニアは、これらの外部テーブルを効率的に管理し、特定の外部テーブルへのアクセスに必要な権限のみがユーザーに付与されるようにしたいと考えています。データエンジニアは、これらの外部テーブルへのアクセスをどのように管理すべきでしょうか?",
+        options: [
+            "(A) コンテナレベルで Azure Blob Storage のアクセス許可を設定し、すべての外部テーブルへのアクセスを許可する。",
+            "(B) すべての外部テーブルへの完全なアクセス権を持つ単一のユーザーロールを作成し、それをすべてのユーザーに割り当てる。",
+            "(C) Databricksワークスペースレベルで権限を付与する。これは自動的にすべての外部テーブルに適用される。",
+            "(D) Unity Catalogを使用して、各外部テーブルのアクセス制御と権限を個別に管理する。"
+        ],
+        answerIndex: 3,
+        explanation: "(D) Unity Catalogを使用すると、細かなアクセス制御（RBAC）をテーブル単位で一元的に管理できます。これにより、特定の外部テーブルに対する最小限のアクセス権限のみをユーザーやグループに安全に割り当てることができます。\n(A) ストレージレベルの権限調整では個別テーブル単位のアクセス制御は不可能です。\n(B) すべてのユーザーに完全アクセス権を与えるのはセキュリティリスクが高く最小権限の原則に反します。\n(C) ワークスペース全体での権限付与は粒度が大きすぎます。"
+    },
+    {
+        question: "問題 102:\nデータエンジニアに新しいデータレコードが渡されました:\nid STRING = 'a1', rank INTEGER = 6, rating FLOAT = 9.4\n既存の Delta テーブル my_table に新しいレコードを追加するために使用できる SQL コマンドは次のどれですか?",
+        options: [
+            "(A) INSERT VALUES ('a1', 6, 9.4) INTO my_table",
+            "(B) INSERT INTO my_table VALUES ('a1', 6, 9.4)",
+            "(C) UPDATE VALUES ('a1', 6, 9.4) my_table",
+            "(D) UPDATE my_table VALUES ('a1', 6, 9.4)",
+            "(E) my_table UNION VALUES ('a1', 6, 9.4)"
+        ],
+        answerIndex: 1,
+        explanation: "(B) SQLにおいてテーブルに新しい行（レコード）を挿入するための標準的かつ正しい構文は INSERT INTO <テーブル名> VALUES (...) です。\n(A) INTO と VALUES の順番が逆になっています。\n(C), (D) UPDATE は既存データの書き換えに使用する構文です。\n(E) UNION は複数のSELECT結果を結合する集合演算子です。"
+    },
+    {
+        question: "問題 103:\n次のコードブロックのうち、列 age の値が 25 より大きい行を既存の Delta テーブル my_table から削除するものはどれですか?",
+        options: [
+            "(A) DELETE FROM my_table WHERE age > 25",
+            "(B) DROP FROM my_table WHERE age > 25",
+            "(C) SELECT * FROM my_table WHERE age > 25",
+            "(D) UPDATE my_table SET age = NULL WHERE age > 25",
+            "(E) REMOVE FROM my_table WHERE age > 25"
+        ],
+        answerIndex: 0,
+        explanation: "(A) Deltaテーブルから特定の条件に合致する「行」を削除するための正しいSQL構文は DELETE FROM <テーブル名> WHERE <条件> です。\n(B) DROP はテーブルや列（スキーマ）全体を削除・破壊する際に使用します。\n(C) SELECT はデータを照会（取得）するだけです。\n(E) REMOVE という標準SQLコマンドは存在しません。"
+    },
+    {
+        question: "問題 104:\nデータエンジニアは、構造化ストリーミング (Structured Streaming) ジョブがソースで利用可能なすべてのデータを処理した後、自動的に停止することを望んでいます。そうすることで、ジョブを継続的に実行するのではなく、スケジュールされたジョブクラスター上で実行できるようになります。どのトリガーを設定すべきですか?",
+        options: [
+            "(A) .trigger(processingTime=\"0 seconds\")",
+            "(B) .trigger(continuous=\"1 second\")",
+            "(C) .trigger(availableNow=True)",
+            "(D) .trigger(once=True)"
+        ],
+        answerIndex: 2,
+        explanation: "(C) availableNow=True（Trigger.AvailableNow）は、現在ソースで利用可能な全データを増分的に処理した後に自動的にストリームを完了・停止する設定です。ジョブクラスターでのコスト効率の良い定期実行（マイクロバッチ実行）に最適です。\n(D) once=True は古い構文であり、大規模データセットにおける並列処理の最適化がなされている availableNow=True が現在のベストプラクティスです。"
+    },
+    {
+        question: "問題 105:\n次のコードブロックのうち、既に同じ名前のテーブルが存在するかどうかに関わらず、指定されたスキーマで空のDeltaテーブルを作成するためにSQL DDLコマンドを使用するものはどれですか?",
+        options: [
+            "(A) CREATE OR REPLACE TABLE table_name (employeeId STRING, startDate DATE, avgRating FLOAT)",
+            "(B) CREATE TABLE table_name AS SELECT employeeId STRING, startDate DATE, avgRating FLOAT",
+            "(C) CREATE OR REPLACE TABLE table_name AS SELECT employeeId STRING, startDate DATE, avgRating FLOAT USING DELTA",
+            "(D) CREATE TABLE IF NOT EXISTS table_name (employeeId STRING, startDate DATE, avgRating FLOAT)"
+        ],
+        answerIndex: 0,
+        explanation: "(A) CREATE OR REPLACE TABLE を使用すると、既存テーブルの有無に関わらず常に指定した定義の新しい空のテーブルを作成（置換）できます。\n(D) IF NOT EXISTS は既存のテーブルがある場合には作成をスキップするため、「存在するかどうかに関わらず作成する」という条件を満たしません。"
+    },
+    {
+        question: "問題 106:\nデータエンジニアがSpark SQLに基づいたETLプロセスを開発している最中に、実行が失敗しました。Spark UIを確認すると「java.lang.OutOfMemoryError: Java heap space」というエラーが表示されていました。この問題を解決するために効果的なアプローチはどれですか?",
+        options: [
+            "(A) クエリで処理するデータ量を減らすためにフィルター条件を絞り込み、必要に応じてドライバー/ワーカーのノードサイズを拡大する。",
+            "(B) ドライバノードのサイズを上げて、パーティションの自動シャッフルを完全に無効化する。",
+            "(C) クエリパフォーマンスを向上させるためにデータセット全体をメモリにキャッシュする。",
+            "(D) シャッフルパーティションを小数の50に固定して割り当てを強制する。"
+        ],
+        answerIndex: 0,
+        explanation: "(A) OOM（メモリ不足エラー）に対処するためには、クエリの段階で不要なデータをフィルター除去して読み込み量を減らすことや、処理に必要なコンピュートリソース（ノードサイズ/メモリ）をスケールアップさせることが根本的な是正措置になります。\n(C) メモリが不足している状態でキャッシュ（cache()）を適用すると、さらにメモリを圧迫して症状が悪化します。"
+    },
+    {
+        question: "問題 107:\nDelta Lake テーブルのデータは、主に次のどのファイル形式（ストレージフォーマット）で保存されますか?",
+        options: [
+            "(A) Delta",
+            "(B) CSV",
+            "(C) JSON",
+            "(D) Parquet",
+            "(E) Databricks独自のプロプライエタリ形式"
+        ],
+        answerIndex: 3,
+        explanation: "(D) Delta Lakeの実データ（基本フォーマット）は、オープンフォーマットである「Parquet（パルケ/パーケット）」形式で列指向ストレージとして保存されます。これにJSON形式のトランザクションログ（_delta_log）が組み合わさることでDelta Lakeを構成しています。"
+    },
+    {
+        question: "問題 108:\nデータエンジニアがストリーミングパイプラインを設計しており、集計クエリの状態情報（State）をSparkが保持する期間を制限したいと考えています。遅延データの処理限界（許容期間）を定義する構造化ストリーミングの機能はどれですか?",
+        options: [
+            "(A) パーティション (Partitioning)",
+            "(B) チェックポイント (Checkpointing)",
+            "(C) キャッシュ (Caching)",
+            "(D) ウォーターマーク (Watermarking)"
+        ],
+        answerIndex: 3,
+        explanation: "(D) 「ウォーターマーク (Watermarking)」は、ストリーミング集計において「どれくらい遅れて到着したデータまでを処理対象に含めるか」という時間的な閾値を定義する機能です。これにより、古い不要な状態情報をメモリから削除し、メモリ溢れを防ぎます。"
+    },
+    {
+        question: "問題 109:\nデータエンジニアリングチームがクラウドストレージからデータを読み込むためのPythonノートブックを作成しました。このジョブはテスト済みで、今後は本番環境でスケジュール実行する必要があります。コストと効率の観点から、どのコンピューティング環境を使用するのが最適でしょうか?",
+        options: [
+            "(A) サーバーレス SQL ウェアハウス (Serverless SQL Warehouse)",
+            "(B) ジョブクラスター (Job Cluster)",
+            "(C) All-Purposeクラスター (汎用クラスター)",
+            "(D) 単一ノードのインタラクティブクラスター"
+        ],
+        answerIndex: 1,
+        explanation: "(B) 本番環境でスケジュール実行される自動化ジョブには、「ジョブクラスター (Job Cluster)」を使用するのが最も低コストかつ推奨されるベストプラクティスです。ジョブの開始時に起動し、終了時に自動的に破棄されます。\n(C) 汎用クラスター（All-Purpose）は開発・インタラクティブ実行用であり、単価が高いため本番ジョブには不向きです。"
+    },
+    {
+        question: "問題 110:\nデータエンジニアはデータパイプラインのメンテナンスを行っています。データの取り込み時に、ソースデータの品質が低下し始めていることに気付きました。データエンジニアは、データ品質の検証や監視プロセスを自動化したいと考えています。この問題を解決するために使用できる最適なツールはどれですか?",
+        options: [
+            "(A) Catalog Explorer (データエクスプローラー)",
+            "(B) Delta Lake",
+            "(C) Unity Catalog",
+            "(D) Delta Live Tables (DLT)",
+            "(E) Auto Loader"
+        ],
+        answerIndex: 3,
+        explanation: "(D) Delta Live Tables (DLT) には「Expectations（期待値）」という強力なデータ品質監視機能が組み込まれています。これを使用することで、パイプラインの実行中にデータの品質制約をチェックし、違反データのドロップ・警告・パイプライン停止などを自動制御できます。"
+    },
+    {
+        question: "問題 111:\nDeclarative Pipeline (Delta Live Tables / DLT) において、パイプラインの実行中に order_id が null のレコードが silver テーブルから破棄（スキップ）されるように設定したいと考えています。どの期待値句 (Expectation) を使用すべきでしょうか?",
+        options: [
+            "(A) CONSTRAINT valid_id EXPECT (order_id IS NOT NULL) ON VIOLATION DROP ROW",
+            "(B) CONSTRAINT valid_id EXPECT (order_id IS NOT NULL) ON VIOLATION FAIL UPDATE",
+            "(C) CONSTRAINT valid_id EXPECT (order_id IS NOT NULL)",
+            "(D) ALTER TABLE silver_orders ADD CONSTRAINT valid_id CHECK (order_id IS NOT NULL)"
+        ],
+        answerIndex: 0,
+        explanation: "(A) DLTにおいて、条件（ここでは order_id IS NOT NULL）を満たさない「違反行のみをテーブルから削除（ドロップ）」してパイプラインの処理を続行させる正しい構文は CONSTRAINT <制約名> EXPECT (<条件>) ON VIOLATION DROP ROW です。\n(B) FAIL UPDATE は違反行が1件でも発生するとパイプライン全体を失敗停止させます。\n(C) ON VIOLATION 句を省略した場合はデフォルトで「違反行もそのまま保持し、イベントログに警告のみ記録」となります。\n(D) ALTER TABLE CHECK 制約は標準Deltaテーブルの制約であり、DLTの動的な行ドロップ機能ではありません。"
+    },
+    {
+        question: "問題 112:\nデータエンジニアは、毎晩実行され、複数のノートブックを順番に実行する再現可能なETLワークフローを作成したいと考えています。このワークフローは、失敗したタスクの自動リトライや、実行状況の監視機能を提供する必要があります。この要件に最適なDatabricksの機能はどれですか?",
+        options: [
+            "(A) Delta Lake",
+            "(B) Databricks Jobs (Databricks ワークフロー)",
+            "(C) MLflow",
+            "(D) DBFS (Databricks File System)"
+        ],
+        answerIndex: 1,
+        explanation: "(B) 複数のノートブックやタスクをシーケンシャル/並列にオーケストレーションし、スケジュール実行、リトライ制御、失敗時の通知・監視を提供するDatabricksの標準機能は「Databricks Jobs（ワークフロー）」です。\n(A) Delta Lakeはストレージフォーマットです。\n(C) MLflowは機械学習の実験管理・モデル管理ツールです。\n(D) DBFSは分配送信ファイルシステムです。"
+    },
+    {
+        question: "問題 113:\nデータエンジニアは、管理されたUnity Catalogテーブルに対して、一日を通してアドホックで高並列性のSQLクエリを実行する数百人のビジネスユーザー向けに、セルフサービスBIダッシュボードをサポートする必要があります。ほぼ瞬時の起動、手動調整不要の自動スケーリング、そして運用オーバーヘッドを最小限に抑えつつ最高のSQLパフォーマンスを必要とする場合、どのコンピューティングを使用すべきでしょうか?",
+        options: [
+            "(A) 固定クラスターサイズの SQL Warehouse (Classic)",
+            "(B) ダッシュボードによってスケジュールに基づいてトリガーされるジョブクラスター",
+            "(C) 手動オートスケーリングが有効になっている汎用 (All-Purpose) クラスター",
+            "(D) Photonが有効になっている SQL Warehouse (Serverless)"
+        ],
+        answerIndex: 3,
+        explanation: "(D) 数百人のユーザーからの高並列アクセス、ほぼ即時の起動、手動管理不要の自動スケーリング、最高のクエリパフォーマンス（Photonエンジン）をすべて満たす最適なコンピューティング環境は「SQL Warehouse (Serverless)」です。"
+    },
+    {
+        question: "問題 114:\nデータエンジニアは、オンプレミスのPostgreSQLデータベースの販売データとAzure Synapseの顧客データを統合して、包括的なレポートを作成する必要があります。データの重複コピーを避け、常に最新情報を直接参照したいと考えています。Databricksを使用してこれを実現する最も適切な方法はどれですか?",
+        options: [
+            "(A) 両方のソースからデータをCSVファイルにエクスポートし、Databricksにアップロードする。",
+            "(B) Lakehouse Federation (レイクハウス・フェデレーション) を使用して、両方のデータソースを直接クエリする。",
+            "(C) 両方のソースからのデータを手動で同期して単一のデータベースに格納する。",
+            "(D) Databricksにデータを取り込むためのカスタムETLパイプラインを開発する。"
+        ],
+        answerIndex: 1,
+        explanation: "(B) 「Lakehouse Federation」機能を使用すると、外部のデータベース（PostgreSQLやAzure Synapseなど）のデータをDatabricks内に複製・取り込みすることなく、Unity Catalog経由で仮想的に直接クエリ（フェデレーションクエリ）できます。データ重複を防ぎ最新情報を参照する要件に完璧に合致します。"
+    },
+    {
+        question: "問題 115:\nデータエンジニアは、データパイプラインの一部として Delta テーブルを使用する必要がありますが、そのテーブルに対する適切なアクセス権限があるかどうかがわかりません。データエンジニアがテーブルに対する権限を確認できるUI上の場所は次のどれですか?",
+        options: [
+            "(A) Jobs (ジョブ)",
+            "(B) Catalog Explorer (データエクスプローラー)",
+            "(C) REST API",
+            "(D) Dashboards (ダッシュボード)",
+            "(E) DBFS (Databricks File System)"
+        ],
+        answerIndex: 1,
+        explanation: "(B) Databricks UIの「Catalog Explorer（旧: Data Explorer）」を使用すると、カタログ、スキーマ、テーブルの構造をブラウズできるだけでなく、「Permissions（権限）」タブを開くことで、自分がそのテーブルに対して持っている特権（SELECT, MODIFY等）を確認・管理できます。"
+    },
+    {
+        question: "問題 116:\nデータエンジニアは、テーブル内の文字列型の列 city に対してカスタムロジックを適用したいと考えています。このロジックをSQLクエリ内で再利用・スケールさせるために、SQLのユーザー定義関数 (UDF) を作成したいと考えています。正しい作成構文は次のどれですか?",
+        options: [
+            "(A) CREATE UDF combine_nyc (city STRING) RETURNS STRING ...",
+            "(B) CREATE FUNCTION combine_nyc (city STRING) RETURNS STRING RETURN CASE WHEN city = 'brooklyn' THEN 'new york' ELSE city END;",
+            "(C) CREATE FUNCTION combine_nyc (city STRING) RETURN CASE ...",
+            "(D) CREATE UDF combine_nyc (city STRING) RETURNS STRING ...",
+            "(E) CREATE UDF combine_nyc (city STRING) RETURN CASE ..."
+        ],
+        answerIndex: 1,
+        explanation: "(B) Spark SQLにおいてスカラーユーザー定義関数（UDF）を作成する正しいSQL構文は CREATE FUNCTION 関数名 (引数 型) RETURNS 戻り値型 RETURN 式; です。キーワードは CREATE FUNCTION であり、RETURNS で型を指定した上で RETURN 句に処理内容を記述します。CREATE UDF という構文は標準SQL/Spark SQLには存在しません。"
+    },
+    {
+        question: "問題 117:\nDatabricksワークフローがノートブックのエラーにより最終段階のタスクで失敗しました。このワークフローは毎日実行されており、非常にコストと時間がかかります。データエンジニアはエラーを修正した後にパイプラインを再実行したいと考えています。ダウンタイムとコスト（計算リソース）を最小限に抑えるために、どのような対策を講じるべきでしょうか?",
+        options: [
+            "(A) ワークフロー全体を最初から再実行する。",
+            "(B) 失敗したタスク以降のみを「修復して実行 (Repair and Run / 修理実行)」する。",
+            "(C) クラスターを再起動してから全体を実行する。",
+            "(D) 別のクラスターに切り替えて全体を実行する。"
+        ],
+        answerIndex: 1,
+        explanation: "(B) Databricks Jobsの「Repair and Run（修復して実行）」機能を使用すると、すでに正常に完了した前段の重いタスクを再実行することなく、失敗したタスクおよびその下流のタスクのみを選択して再実行できます。これにより時間とコンピュートコストを劇的に節約できます。"
+    },
+    {
+        question: "問題 118:\nデータエンジニアは、既存のデータを保持したまま、既存のDeltaテーブルに新しいレコードを追加する必要があります。データ取り込みパイプラインは1時間ごとに実行され、以前のレコードを置き換えることなく増分データを追加します。どの書き込みモード (SaveMode) を使用すべきでしょうか?",
+        options: [
+            "(A) Append (追加)",
+            "(B) Overwrite (上書き)",
+            "(C) ErrorIfExists (エラーが存在する場合)",
+            "(D) Ignore (無視)"
+        ],
+        answerIndex: 0,
+        explanation: "(A) 既存のデータを削除・上書きすることなく、新しいデータを末尾に追加し続けるためのSparkの書き込みモードは Append です。"
+    },
+    {
+        question: "問題 119:\nデータエンジニアがDeltaテーブルに対してDatabricksの OPTIMIZE コマンドを使用しています。同じテーブルで同じデータに対して OPTIMIZE コマンドを2回連続で実行するとどうなりますか?",
+        options: [
+            "(A) 冪等性 (Idempotency) を持つため、2回目の実行では何も処理されず効果・変化はない。",
+            "(B) ファイルあたりのレコード数を大幅に変更する。",
+            "(C) データを再クラスタリングすることで、ファイルサイズをさらに縮小する。",
+            "(D) 完全なリキッドクラスタリング処理を強制発動させる。"
+        ],
+        answerIndex: 0,
+        explanation: "(A) OPTIMIZE コマンドは「冪等性（べきとうせい）」を備えています。すでに適切なファイルサイズに圧縮・最適化されたデータに対して再度実行しても、新たな圧縮対象ファイルが存在しないため、何の変化も起きず無駄な再処理は行われません。"
+    },
+    {
+        question: "問題 120:\nデータエンジニアは、外部の SQLite データベースのデータを使用して、Databricks に JDBC テーブルを作成する必要があります。次のコマンドの空白を埋める正しい選択肢はどれですか?\nCREATE TABLE jdbc_customer360 USING [          ] OPTIONS (url \"jdbc:sqlite:/customers.db\", dbtable \"customer360\")",
+        options: [
+            "(A) delta",
+            "(B) sqlite",
+            "(C) org.apache.spark.sql.jdbc (または単に jdbc)",
+            "(D) org.apache.spark.sql.sqlite",
+            "(E) cloudFiles"
+        ],
+        answerIndex: 2,
+        explanation: "(C) Spark SQLでJDBCデータソース経由で外部データベースにアクセスするテーブルを作成する場合、USING 句には jdbc（または完全修飾クラス名 org.apache.spark.sql.jdbc）を指定します。"
+    },
+    {
+        question: "問題 121:\nPythonファイルが本番環境に移行する準備が整い、クライアントは最も安価で効率的なクラスタータイプを使用したいと考えています。ワークロードは非常に小さく、処理するデータは10GBのみで、単純な結合処理のみを行い、複雑な集計や大規模な変換処理は行いません。この要件を満たすクラスターはどれでしょうか?",
+        options: [
+            "(A) All-Purposeクラスター (対話型クラスター)",
+            "(B) スポットインスタンスが有効になっている ジョブクラスター (Job Cluster)",
+            "(C) スポットインスタンスが無効になっている ジョブクラスター",
+            "(D) Photonが有効になっている ジョブクラスター"
+        ],
+        answerIndex: 1,
+        explanation: "(B) 本番環境の自動化ワークロードには単価の安価なジョブクラスターが適しています。さらに、処理が単純でコスト効率が最優先の要件であるため、「スポットインスタンス」を有効にすることでクラウドの余剰コンピュートを最小コストで利用するのが最適なソリューションです。"
+    },
+    {
+        question: "問題 122:\nグローバル小売企業は、複数のカテゴリーと地域にわたる製品を販売しています。営業チームはデータエンジニアに sales_df という名前の PySpark DataFrame を提供しました。\nデータ構造 (sales_df):\n| product_id | category    | sales_amount | region |\n| 1          | Electronics | 100          | North  |\n| 2          | Clothing    | 200          | South  |\n\n各製品カテゴリの総売上高を計算し、その結果を category_sales という名前の新しい DataFrame に格納します。期待される結果 (category_sales) を生成するコードはどれですか?\n| category    | total_sales_amount |\n| Electronics | 500                |\n| Clothing    | 900                |",
+        options: [
+            "(A) category_sales = sales_df.groupBy(\"category\").agg(sum(\"sales_amount\").alias(\"total_sales_amount\"))",
+            "(B) category_sales = sales_df.sum(\"sales_amount\").groupBy(\"category\").alias(\"total_sales_amount\")",
+            "(C) category_sales = sales_df.agg(sum(\"sales_amount\").groupBy(\"category\").alias(\"total_sales_amount\"))",
+            "(D) category_sales = sales_df.groupBy(\"region\").agg(sum(\"sales_amount\").alias(\"total_sales_amount\"))"
+        ],
+        answerIndex: 0,
+        explanation: "(A) PySparkにおいて、指定した列（\"category\"）でグループ化し、集計関数（sum(\"sales_amount\")）を適用してエイリアス（total_sales_amount）を付与する正しく推奨される構文です。\n(D) グループ化の対象が \"region\" になってしまっており、カテゴリー別の集計になりません。"
+    },
+    {
+        question: "問題 123:\nデータエンジニアがDatabricks Spark UIで処理が遅いステージを調査しています。エンジニアはタスク実行時間のサマリーメトリクスセクションを確認し、以下の情報を見つけました:\n- 25パーセンタイル持続時間: 40秒\n- 平均持続時間: 45秒\n- 75パーセンタイル持続時間: 50秒\n- 最大持続時間: 80秒\nこれらの指標はどのように解釈すればよいでしょうか?",
+        options: [
+            "(A) GC (ガベージコレクション) の問題が発生している。",
+            "(B) このステージではデータスキュー (データの偏り) が発生しているわけではなく、正常に均等分散されている。",
+            "(C) ステージは健全 (正常) である。",
+            "(D) クラスターのリソースが不十分である。"
+        ],
+        answerIndex: 2,
+        explanation: "(C) タスクの実行時間において、25パーセンタイル（40秒）から75パーセンタイル（50秒）、最大値（80秒）までの差が小さく揃っている場合、各タスクにデータが均等に分配されて処理されていることを示します（データの偏り/スキューがない健全な状態です）。"
+    },
+    {
+        question: "問題 124:\nデータエンジニアが、Unity Catalogの2つのテーブル、main.sales.managed_orders (管理対象テーブル) と main.sales.ext_orders (外部テーブル) に対して DROP TABLE を実行します。クラウドストレージ上の基となるデータファイルはどうなりますか?",
+        options: [
+            "(A) 両方のテーブルのファイルが削除される。",
+            "(B) 両方のテーブルのファイルが保持される。",
+            "(C) 管理対象テーブルのファイルは削除され、外部テーブルのファイルは保持される。",
+            "(D) 管理対象テーブルのファイルは保持され、外部テーブルのファイルは削除される。"
+        ],
+        answerIndex: 2,
+        explanation: "(C) Unity Catalogにおける動作として、管理対象テーブル (Managed Table) を削除するとメタデータとストレージ上の実データファイルの両方が削除されます。一方、外部テーブル (External Table) を削除した場合はメタデータ（カタログ登録）のみが削除され、物理ファイルはストレージ上にそのまま保持されます。"
+    },
+    {
+        question: "問題 125:\nデータセットが Delta Live Tables (DLT) を使用して定義されており、以下の期待値句 (Expectation) が含まれています。\nCONSTRAINT valid_timestamp EXPECT (timestamp > '2020-01-01') ON VIOLATION DROP ROW\nこれらの制約に違反するデータバッチが処理された場合、どのような動作が想定されますか?",
+        options: [
+            "(A) 期待値に違反するレコードはターゲットデータセットから削除 (ドロップ) され、イベントログに無効として記録される。",
+            "(B) 期待値に違反するレコードはターゲットデータセットに追加され、イベントログに無効として記録される。",
+            "(C) 期待値に違反するレコードはターゲットデータセットから削除され、隔離テーブルにロードされる。",
+            "(D) 期待値に違反するレコードがあると、ジョブ（パイプライン）は失敗する。"
+        ],
+        answerIndex: 0,
+        explanation: "(A) ON VIOLATION DROP ROW が指定されている場合、条件を満たさない不適合レコードはターゲットテーブルへ書き込まれずに破棄（ドロップ）され、その発生状況がDLTのイベントログに記録されます。"
+    },
+    {
+        question: "問題 126:\nDatabricksとUnity Catalogを使用している企業のデータエンジニアが、同じくUnity Catalogに対応したDatabricksワークスペースを使用している外部パートナーとテーブルコレクションを共有する必要があります。データエンジニアはDelta Sharingを使用することにしました。Delta Sharing（Databricks-to-Databricks共有）を設定するために、データエンジニアが外部パートナーに最初に要求すべき情報は何ですか?",
+        options: [
+            "(A) DatabricksワークスペースのIPアドレス",
+            "(B) Databricksクラスターの名前",
+            "(C) Partner (Recipient) の Unity Catalog メタストア識別子 (Sharing Identifier)",
+            "(D) 相手のDatabricksアカウントのパスワード"
+        ],
+        answerIndex: 2,
+        explanation: "(C) Databricks相互のDelta Sharingでは、受領者（Recipient）を登録するために相手側のUnity Catalogメタストア固有の「Sharing Identifier（共有識別子）」を教えてもらう必要があります。これによりトークンの手動交換なしで安全に共有が確立できます。"
+    },
+    {
+        question: "問題 127:\nDelta Live Tables (DLT) パイプラインが「継続 (Continuous)」モードかつ「開発 (Development)」モードで実行されています。以前に処理されていない新しいデータが存在し、すべての定義が有効であると仮定した場合、[開始 (Start)] をクリックしてパイプラインを更新した後の予想される動作はどうなりますか?",
+        options: [
+            "(A) パイプラインが手動で停止されるまで、すべてのデータセットは最新データを監視して設定間隔で更新し続け、コンピューティングリソース（クラスター）も保持され続ける。",
+            "(B) すべてのデータセットが一度更新された後、パイプラインはシャットダウンし、クラスターは自動終了する。",
+            "(C) すべてのデータセットが一度更新され、パイプラインは停止するが、追加開発のためにコンピューティングリソースは保持される。",
+            "(D) パイプラインは一度だけ実行されて自動破棄される。"
+        ],
+        answerIndex: 0,
+        explanation: "(A) 「継続 (Continuous)」パイプラインモードでは、データソースをインクリメンタルに監視し続けてデータが届くたびに処理を行います。そのため、明示的にパイプラインを停止（Stop）するまでクラスター等のコンピューティングリソースは保持され動的に更新処理を継続します。"
+    },
+    {
+        question: "問題 128:\nマルチタスクジョブの実行が失敗した後、データエンジニアはクラスター設定を変更し、1つのタスクのノートブックパスを修正しました。失敗またはスキップされたタスクのみを更新された設定で再実行し、過去の実行履歴を同一コンテキスト内で保持したいと考えています。どの機能・戦略を用いるべきでしょうか?",
+        options: [
+            "(A) Jobs UI または REST API の「修復して実行 (Repair and Run)」機能を使用して失敗したタスクを再実行する。",
+            "(B) タスクの再試行回数を増やし、「再試行」をクリックする。",
+            "(C) ジョブを Databricks Asset Bundles (DABs) としてエクスポートして再デプロイする。",
+            "(D) 「今すぐ実行 (Run Now)」で新しい実行を開始する。"
+        ],
+        answerIndex: 0,
+        explanation: "(A) 「Repair and Run（修復して実行）」機能は、失敗・スキップされたタスクのみをピンポイントで再実行できる機能です。更新されたタスク設定（クラスターやノートブックパスの変更など）を適用しながら、既存の実行履歴（Run History）内に結果を記録できます。"
+    },
+    {
+        question: "問題 129:\nデータエンジニアは、クラウドストレージに毎時間アップロードされる数千もの新しいJSONファイルを段階的 (インクリメンタル) にロードする必要があります。実行ごとにディレクトリ全体をスキャンすることなく、処理済みファイルを追跡し、将来的に数百万ファイル規模まで対応できる拡張性のあるソリューションはどれですか?",
+        options: [
+            "(A) ディレクトリ全体に対して spark.read.json() を使用し、1時間ごとにターゲットテーブルを上書きする。",
+            "(B) cloudFiles.format を json に設定し、チェックポイント位置 (checkpointLocation) を指定して Auto Loader を使用する。",
+            "(C) COPY INTO を FORCE=true オプションで実行する。",
+            "(D) 毎晩 MERGE INTO を手動パスリストから実行する。"
+        ],
+        answerIndex: 1,
+        explanation: "(B) 数百万ファイル規模のクラウドストレージから新しく追加されたファイルのみを効率的に検知・追跡してロードするのに最適な機能は「Auto Loader (format(\"cloudFiles\"))」です。チェックポイントを用いて状態を保持するため、ファイル一覧のディレクトリ再検索（ディレクトリスキャン）を回避できます。"
+    },
+    {
+        question: "問題 130:\nデータエンジニアには複雑な実行スケジュールを持つジョブがあり、そのスケジュール設定をプログラムや構成ファイル経由で別のジョブに定義・送信したいと考えています。スケジュールの時間指定を標準的な文字列として表現するために使用する形式・構文はどれですか?",
+        options: [
+            "(A) プログラムで表現して送信する方法はない",
+            "(B) pyspark.sql.types.DateType",
+            "(C) datetime モジュール",
+            "(D) pyspark.sql.types.TimestampType",
+            "(E) Cron 構文 (Cron Expression)"
+        ],
+        answerIndex: 4,
+        explanation: "(E) Databricks Jobs や Asset Bundles において、複雑な繰り返しスケジュール（例: 「毎週日曜日の午前2時」など）をプログラムや記述ファイル上で柔軟に定義するために広く使用されている業界標準の文法は「Cron 構文」です。"
+    },
+    {
+        question: "問題 131:\nデータエンジニアリングチームは、Databricks Asset Bundles (DABs) を使用して、開発、テスト、本番環境に同じコードベースをデプロイしています。チームは、プロモーション（環境移行）中にノートブック、ジョブ定義、デプロイロジックを変更することなく、バンドル構成のみを通じて環境固有の動作を適用したいと考えています。この要件を満たしつつ、環境固有の構成を適用するアプローチはどれでしょうか?",
+        options: [
+            "(A) 環境ごとに別々の Gitブランチを使用することで、各ブランチに環境固有の設定値を含めることができます。",
+            "(B) バンドル変数を定義し、バンドルリソースからそれらを参照し、バンドルターゲット (Targets) を使用して環境ごとに変数の値を上書きします。",
+            "(C) ノートブック内で環境固有の値をパラメータ化し、各ジョブ実行がトリガーされたときにそれらのパラメータを設定します。",
+            "(D) 同じバンドルを一度デプロイし、デプロイ後に各環境のワークスペースUIでジョブ設定を編集します。"
+        ],
+        answerIndex: 1,
+        explanation: "(B) Databricks Asset Bundlesのベストプラクティスでは、環境（dev, staging, prodなど）ごとの違いを databricks.yml 内の targets セクションで変数を上書き定義することで吸収します。これにより、コードベース自体を変更することなく、環境に応じた設定をシームレスに適用できます。"
+    },
+    {
+        question: "問題 132:\nデータエンジニアが、同じスキーマを持つ2つのデータセットを結合し、一方のデータセットから行をもう一方のデータセットに追加（縦に結合）したいと考えています。この行単位の結合を実行するSpark DataFrame操作はどれですか?",
+        options: [
+            "(A) join (結合)",
+            "(B) append (追加)",
+            "(C) union (ユニオン)",
+            "(D) crossJoin (クロス結合 / 横断)"
+        ],
+        answerIndex: 2,
+        explanation: "(C) 同じスキーマを持つ2つのDataFrameの「行」を縦に結合して1つのデータセットにするための正しいPySparkメソッドは union() または unionByName() です。\n(A) join() はキーに基づいて「列」を横に結合する操作です。\n(B) append はリスト操作や書き込みモード名であり、DataFrame同士の結合メソッドではありません。"
+    },
+    {
+        question: "問題 133:\nデータエンジニアが、クラウドストレージに届いたJSONファイルを読み込むストリーミングパイプラインを構築しています。このパイプラインは、新しいファイルが到着するたびに、手動操作なしで自動的に処理する必要があります。このユースケースに適したDatabricksの機能はどれですか?",
+        options: [
+            "(A) Auto Loader (オートローダー) と Structured Streaming",
+            "(B) Delta Lakeのタイムトラベル",
+            "(C) Spark Cache",
+            "(D) ブロードキャスト結合 (Broadcast Join)"
+        ],
+        answerIndex: 0,
+        explanation: "(A) クラウドストレージ（S3やADLSなど）に継続的に到着する新しいファイルを自動検知し、ストリーミング（またはバッチ）としてインクリメンタルに処理・取り込むための最適な機能が Databricks Auto Loader です。"
+    },
+    {
+        question: "問題 134:\nデータエンジニアは、同じ Spark セッション内で使用する中間データを一時ビューに保存したいと考えています。セッション終了後、データは保持されないようにする必要があります。どの Spark SQL コマンドを使用すればよいでしょうか?",
+        options: [
+            "(A) CREATE DATABASE",
+            "(B) CREATE TEMPORARY VIEW",
+            "(C) CREATE TABLE",
+            "(D) CREATE VIEW"
+        ],
+        answerIndex: 1,
+        explanation: "(B) 現在のSparkセッション内でのみアクセス可能で、セッション終了時（クラスター再起動やノートブックのデタッチなど）に自動的に破棄される一時的なテーブル（ビュー）を作成するSQLコマンドは CREATE TEMPORARY VIEW または CREATE TEMP VIEW です。"
+    },
+    {
+        question: "問題 135:\nオープンソーステクノロジーを採用した Databricks Lakehouse プラットフォームの利点は次のどれですか?",
+        options: [
+            "(A) ワークロードをスケーリングする能力",
+            "(B) ストレージの拡張性",
+            "(C) クラウド固有の統合",
+            "(D) 簡素化されたガバナンス",
+            "(E) ベンダーロックインの回避"
+        ],
+        answerIndex: 4,
+        explanation: "(E) Databricksは、Apache Spark、Delta Lake、MLflowなどの強力な「オープンソースソフトウェア (OSS)」を中核技術として採用しています。オープンソースフォーマット（Parquet/Delta）で自社のクラウドアカウント内のストレージにデータが保存されるため、特定のベンダー（プラットフォーム）にデータを囲い込まれる「ベンダーロックイン」を回避できるのが最大の利点の1つです。"
+    },
+    {
+        question: "問題 136:\nデータエンジニアリングチームは、既に50,000個のCSVファイルが格納されているクラウドストレージから過去のファイルを取り込み、さらに継続的に到着する新規ファイルも処理する必要があります。Auto Loaderを使用して既存と新規の両方のファイルを効率的に増分処理したい場合、どのモードを設定すべきでしょうか?",
+        options: [
+            "(A) ファイル通知 (File Notification) モードを使用する。ディレクトリスキャンではなくクラウドストレージのイベントを使用することで、大量の既存ファイルと継続的な新規ファイルの両方に効率的にスケールする。",
+            "(B) ディレクトリ一覧 (Directory Listing) モードを使用する。",
+            "(C) 最初はディレクトリ一覧モードを使用し、その後ストリームを再構成してファイル通知モードを使用する。",
+            "(D) 既存のファイルがすべて処理された後にのみファイル通知モードを使用する。"
+        ],
+        answerIndex: 0,
+        explanation: "(A) 50,000個（大量）の既存ファイルがあり、継続的な新規追加がある場合、APIでディレクトリ全体を毎回走査する「ディレクトリ一覧モード」はパフォーマンスが低下します。クラウドプロバイダーのイベントキュー（AWS SQS/EventBridgeやAzure Event Gridなど）を利用して新しいファイルの到着通知だけを受け取る「ファイル通知モード (File Notification mode)」を使用するのが、最もスケーラブルで高効率なベストプラクティスです。"
+    },
+    {
+        question: "問題 137:\n新しいデータエンジニアリングチームがELTプロジェクトに割り当てられました。このチーム（グループ名 `team`）には、プロジェクトを完全に管理するために `sales` テーブルに対する完全な権限が必要です。チームにテーブルに対するすべての権限を一括で付与するには、次のどのSQLコマンドを使用できますか?",
+        options: [
+            "(A) GRANT ALL PRIVILEGES OF TABLE team TO sales;",
+            "(B) GRANT SELECT ON TABLE sales TO team;",
+            "(C) GRANT USAGE ON TABLE sales TO team;",
+            "(D) GRANT SELECT, CREATE, MODIFY ON TABLE sales TO team;",
+            "(E) GRANT ALL PRIVILEGES ON TABLE sales TO team;"
+        ],
+        answerIndex: 4,
+        explanation: "(E) Unity Catalogにおいて、特定のオブジェクト（ここではテーブル）に対する「すべて」の権限を指定のプリンシパル（グループやユーザー）に付与するための正しい標準SQL構文は GRANT ALL PRIVILEGES ON <オブジェクトタイプ> <オブジェクト名> TO <プリンシパル>; です。"
+    },
+    {
+        question: "問題 138:\nデータエンジニアがDatabricksノートブックを使用してデータパイプラインを実装しています。エンジニアは、ジョブ内の複数のタスク間でファイルパスや処理日などのパラメータを共有したいと考えています。Databricksのどのユーティリティでパラメータの受け渡しが可能になりますか?",
+        options: [
+            "(A) display",
+            "(B) spark.conf",
+            "(C) dbutils.widgets (または dbutils.jobs.taskValues)",
+            "(D) dbutils.fs"
+        ],
+        answerIndex: 2,
+        explanation: "(C) ノートブック間で値を設定・取得するための標準的なDatabricksユーティリティは dbutils.widgets です。また、Databricks Jobsのタスク間で動的に値を引き継ぐ場合は dbutils.jobs.taskValues が使用されます。\n(D) dbutils.fs はファイルシステムの操作ユーティリティです。"
+    },
+    {
+        question: "問題 139:\nデータエンジニアが外部テーブル (External Table) を管理対象テーブル (Managed Table) に変換しました。このテーブルからデータを読み取る構造化ストリーミングジョブは、変換中も実行され続けていましたが、変換が完了するとストリーミングジョブが新しいレコードの処理を停止してしまいました。データエンジニアはこの問題をどのように解決すべきでしょうか?",
+        options: [
+            "(A) 新しい管理ストレージの場所に対してストリーミングジョブに追加の権限を付与する。",
+            "(B) ストリーミングジョブを再起動して、新しい管理対象テーブルの場所を認識させる。",
+            "(C) 変換されたテーブルに対して REFRESH TABLE を実行し、ストリーミングチェックポイントを更新する。",
+            "(D) ストリーミングチェックポイントディレクトリを完全に削除し、ジョブを最初から再処理する。"
+        ],
+        answerIndex: 1,
+        explanation: "(B) 構造化ストリーミング（Structured Streaming）のマイクロバッチ処理は、ソーステーブルのメタデータや物理的なパスの変更を動的に検知できません。外部テーブルから管理対象テーブルへ変換（実データの場所が移動）した場合、ジョブを一度停止して「再起動」し、新しいテーブルの場所をドライバーに認識させる必要があります。（チェックポイント自体は論理的なオフセットを保持しているため再利用可能です）。"
+    },
+    {
+        question: "問題 140:\nデータエンジニアが個人のノートパソコンで作業しており、クラウドストレージ上のDelta Lakeに保存されているデータに対して複雑な変換処理を実行する必要があります。エンジニアはDatabricks Connectを使用してDatabricksクラスターと連携し、ローカルIDEで作業することにしました。Databricks Connectは、エンジニアがDatabricksクラスターと連携しながら、ローカルマシン上でコードの開発、テスト、デバッグをシームレスに行えるようにするために、どのような仕組みを提供しているのでしょうか?",
+        options: [
+            "(A) Databricksランタイムを模倣したローカル環境を提供することで、指定された特定のIDEを使用させる。",
+            "(B) Databricksランタイムを模倣したローカル環境を提供し、Webインターフェースのみを介して開発を行わせる。",
+            "(C) ネットワーク接続を必要とせずにローカルマシンからSparkジョブを直接実行できるようにする。",
+            "(D) Databricksクラスターへのリモートプロキシ通信を提供し、エンジニアが好みのローカルIDEを使用してコードの開発、テスト、デバッグを行えるようにする。"
+        ],
+        answerIndex: 3,
+        explanation: "(D) Databricks Connectの仕組みは、「ローカルマシン上にクラスターを模倣・エミュレートする」のではなく、ローカルのVS CodeやPyCharmといった「好みのIDE」から、リモートで稼働している実際のDatabricksクラスターにSparkコマンド（プロキシ通信）を送信し、重い分散処理はクラウド上のクラスターで実行させるアーキテクチャです。"
+    },
+    {
+        question: "問題 141:\nデータエンジニアがSpark SQLテーブル `my_table` を削除しようとしています。データエンジニアは、テーブルのメタデータと実データの両方をすべて削除したいと考えています。次のコマンドを実行しました。\n`DROP TABLE IF EXISTS my_table;`\n`SHOW TABLES` を実行してもオブジェクトは表示されなくなりましたが、クラウドストレージ上のデータファイルは引き続き存在しています。データファイルがまだ存在し、メタデータファイルのみが削除された理由を説明するのは次のどれですか?",
+        options: [
+            "(A) テーブルのデータが10GBを超えていたため。",
+            "(B) テーブルが外部テーブル (External Table) であったため。",
+            "(C) テーブルに場所 (LOCATION) が指定されていなかったため。",
+            "(D) テーブルのデータが10GB未満であったため。",
+            "(E) テーブルが管理対象テーブル (Managed Table) であったため。"
+        ],
+        answerIndex: 1,
+        explanation: "(B) Databricks/Spark SQLにおいて、外部テーブル (External Table: LOCATION句を指定して作成されたテーブル) を DROP TABLE した場合、メタデータストア（カタログ）からの登録のみが削除され、物理的なデータファイルはクラウドストレージ上に残ります。実データも一緒に削除されるのは管理対象テーブル (Managed Table) の場合です。"
+    },
+    {
+        question: "問題 142:\nワークスペースで使用されているデータソースとテーブルの関係（依存関係）を確認するには、Databricksのどの機能を使用できますか?",
+        options: [
+            "(A) リネージ (Data Lineage) 機能を使用して、レポート内でのみテーブルが使用されている箇所を強調表示するグラフを視覚化する。",
+            "(B) リネージ機能を使用して、ノートブック内でのみテーブルが使用されている箇所を強調表示するグラフを視覚化する。",
+            "(C) リネージ機能を使用して、ノートブック、他のテーブル、ダッシュボード/レポートなどでテーブルが使用されている場所など、すべての依存関係を示すグラフを視覚化する。",
+            "(D) 過去3か月のアクティビティのみを追跡し、依存関係の詳細を完全に提供しないため、リネージ機能を使用しない。"
+        ],
+        answerIndex: 2,
+        explanation: "(C) Unity Catalogの「データリネージ (Data Lineage)」機能は、テーブル、ノートブック、ジョブ、ダッシュボードなど、データがどこから来てどこへ流れていくかの完全な依存関係（上流・下流）をインタラクティブなグラフとして可視化する機能です。特定の要素だけでなくすべての依存関係を網羅します。"
+    },
+    {
+        question: "問題 143:\nデータエンジニアは、更新と削除操作を何度か繰り返した後、参照されなくなった古いデータファイルを含むDeltaテーブルを持っています。これらの未使用ファイルを物理的に削除してストレージ領域を解放するには、どのDelta Lakeコマンドを実行すればよいでしょうか?",
+        options: [
+            "(A) CACHE TABLE",
+            "(B) DESCRIBE HISTORY (履歴の確認)",
+            "(C) OPTIMIZE (最適化)",
+            "(D) VACUUM (バキューム)"
+        ],
+        answerIndex: 3,
+        explanation: "(D) Delta Lakeにおいて、更新や削除によって論理的に削除され、参照されなくなった古い履歴ファイル（デフォルトで7日以上経過したもの）を物理的なストレージから削除してコストを削減するコマンドは VACUUM です。OPTIMIZE はファイルの圧縮（コンパクション）であり、物理削除は行いません。"
+    },
+    {
+        question: "問題 144:\nデータエンジニアリングチームは、3つのエンタープライズソース (SQLデータベース、S3、Kafkaストリーム) から顧客のトランザクションデータをUnity Catalogテーブルに取り込みます。データはリネージ（系統）を維持し、履歴スナップショットを必要とするコンプライアンス監査に対応する必要があります。ガバナンスと監査の両方の要件を満たす Lakeflow Connect (または一般的な取り込み) 構成はどれでしょうか?",
+        options: [
+            "(A) ストレージコストを削減するために、3つのソースすべてを備えた単一の Lakeflow コネクタ、直接 Delta 書き込み、およびテーブルバージョン管理の無効化。",
+            "(B) CDC (変更データキャプチャ) を使用したソースごとの個別のコネクタ、ソースごとの個別のUnity Catalogスキーマ、および監査コンプライアンスのためのテーブルバージョン管理 (Delta Lake) が有効になっている構成。",
+            "(C) フルロード同期のみ、履歴データのアーカイブ、監査クエリ用の外部テーブルを備えた個別のコネクタ。",
+            "(D) バッチスケジューリング、共有Unity Catalogスキーマ、外部に保存される増分スナップショットを備えた単一のコネクタ。"
+        ],
+        answerIndex: 1,
+        explanation: "(B) 監査コンプライアンス（履歴スナップショットの維持）とガバナンス（リネージの維持）を満たすためには、ソースごとに個別のコネクタとスキーマを分けて管理し、CDCを用いて変更履歴を正確に取り込み、Delta Lakeのバージョン管理（タイムトラベル）を有効にしたまま維持する構成がベストプラクティスです。バージョン管理の無効化（A）やフルロード同期（C）は要件を満たしません。"
+    },
+    {
+        question: "問題 145:\nある企業は、複数のカテゴリーと地域にわたって製品を販売しています。営業チームは、以下のような sales_df という名前の PySpark DataFrame を提供しました。\n| product_id | category    | sales_amount | region |\n| 1          | Electronics | 100          | North  |\n| 2          | Clothing    | 200          | South  |\n\n各地域 (region) ごとの総売上高を計算し、その結果を region_sales という名前の新しい DataFrame に格納します。\nどのコードが期待通りの結果を生成しますか?",
+        options: [
+            "(A) region_sales = sales_df.groupBy(\"category\").sum(\"sales_amount\").alias(\"total_sales_amount\")",
+            "(B) region_sales = sales_df.groupBy(\"region\").agg(sum(\"sales_amount\").alias(\"total_sales_amount\"))",
+            "(C) region_sales = sales_df.sum(\"sales_amount\").groupBy(\"region\").alias(\"total_sales_amount\")",
+            "(D) region_sales = sales_df.agg(sum(\"sales_amount\").groupBy(\"region\").alias(\"total_sales_amount\"))"
+        ],
+        answerIndex: 1,
+        explanation: "(B) 「地域 (region) ごと」に集計を行うため、groupBy(\"region\") を使用するのが正解です。また、PySparkで集計結果の列名を変更（エイリアス）するには agg() を使用して sum(...).alias(...) とする構文が正確です。"
+    },
+    {
+        question: "問題 146:\nデータエンジニアは、Auto Loaderを使用してJSONソースからデータを取り込むパイプラインを開発しましたが、型推論やスキーマヒントを一切提供しませんでした。ターゲットテーブル内の一部のフィールドは浮動小数点値やブール値しか含まれていないにもかかわらず、すべての列が「文字列 (String) 型」になっていることに気付きました。\nAuto Loaderがすべての列を文字列型であると推測した理由を説明するのは次のどれですか?",
+        options: [
+            "(A) Auto Loaderは取り込まれたデータのスキーマを自動で推論することができない。",
+            "(B) JSONデータ形式はテキストベースの形式であり、デフォルトの推論では文字列として読み込まれるため。",
+            "(C) 特定のスキーマと推論されたスキーマの間に型の不一致があったため。",
+            "(D) すべてのフィールドに少なくとも1つのNULL値が含まれていたため。",
+            "(E) Auto Loaderは文字列データでのみ動作する機能であるため。"
+        ],
+        answerIndex: 1,
+        explanation: "(B) JSONはテキストベースのフォーマットであり、Auto Loader (cloudFiles) のデフォルトの動作として、スキーマの不一致によるデータの欠落（データロス）を防ぐために、すべての列を最も安全な「文字列 (String) 型」として推論して取り込みます。正確なデータ型（IntやBoolean等）を適用したい場合は、スキーマヒントや cloudFiles.inferColumnTypes = true の設定が必要です。"
+    },
+    {
+        question: "問題 147:\nデータエンジニアリングチームは、ノートブックのバージョン管理を行い、プルリクエストを通じて変更内容をレビューし、同じコードを開発環境、ステージング環境、本番環境にデプロイする必要があります。このソフトウェアエンジニアリング・ワークフローをサポートするDatabricksの機能はどれですか?",
+        options: [
+            "(A) リモートGitプロバイダーと統合された Databricks Gitフォルダー (旧: Repos)",
+            "(B) ノートブックを DBC アーカイブとしてエクスポートし、ワークスペース間でメールで送信する。",
+            "(C) ノートブックのソースファイルを DBFS / FileStore に保存し、手動でコピーする。",
+            "(D) ノートブックの改訂履歴 (Revision History) を有効にし、必要に応じてスナップショットを復元する。"
+        ],
+        answerIndex: 0,
+        explanation: "(A) プルリクエスト（PR）によるコードレビューや、CI/CDを通じた複数環境へのコードベースの展開など、エンタープライズのソフトウェアエンジニアリングを可能にするのは、GitHub/GitLabなどと連携する「Databricks Git folders (旧: Repos)」機能です。"
+    },
+    {
+        question: "問題 148:\nデータエンジニアがDatabricksワークスペースでPythonノートブックを作成し、日々の売上データを処理するスケジュールジョブとして実行するように設定しました。Databricksアーキテクチャでは、このノートブックの保存と実行はどのように管理されるのでしょうか?",
+        options: [
+            "(A) ノートブックはコントロールプレーンに安全に保存・暗号化されており、ジョブの実行時にコードはデータプレーン (コンピューティングプレーン) のクラスターで実行される。",
+            "(B) ノートブックは計算プレーンに安全に保存されており、ジョブの実行時にコードはコントロールプレーンで実行される。",
+            "(C) ノートブックは Unity Catalog に安全に保存されており、ジョブの実行時には Delta Lake で実行される。",
+            "(D) ノートブックはワークスペースストレージバケットに暗号化されずに保存され、ジョブの実行時にデータプレーンのドライバーノードで実行される。"
+        ],
+        answerIndex: 0,
+        explanation: "(A) Databricksのアーキテクチャは分離されています。ノートブックファイルやワークスペースのUI、ジョブのスケジュール設定などはDatabricks側が管理する「コントロールプレーン」に保存されます。実際のジョブ実行（計算処理）は、顧客のクラウドアカウント側にある「データプレーン（コンピューティングプレーン）」のクラスター上で実行されます。"
+    },
+    {
+        question: "問題 149:\nデータエンジニアはテーブル `new_table` にアクセスする必要がありますが、適切な権限がありません。テーブルの所有者に権限を尋ねることはできますが、テーブルの所有者が誰なのかがわかりません。`new_table` の所有者を特定するために使用できるアプローチは次のどれですか?",
+        options: [
+            "(A) データエクスプローラー (Catalog Explorer) のテーブルページの「権限 (Permissions)」タブを確認する。",
+            "(B) テーブルの所有者を特定する方法はない。",
+            "(C) クラウドストレージ ソリューションのテーブルのページの所有者フィールドを確認する。",
+            "(D) これらすべてのオプションはテーブルの所有者を特定するために使用できる。",
+            "(E) データエクスプローラー (Catalog Explorer) のテーブルのメインページ（詳細画面）で「所有者 (Owner)」フィールドを確認する。"
+        ],
+        answerIndex: 4,
+        explanation: "(E) Databricksの Catalog Explorer（データエクスプローラー）で対象のテーブルをクリックすると、テーブルの詳細（Details）ペインの最上部に「Owner（所有者）」フィールドが表示されており、そこに所有しているユーザーまたはグループ名が記載されています。"
+    },
+    {
+        question: "問題 150:\nデータエンジニアは、eコマース取引のDeltaテーブルのデータレイアウトとクエリパフォーマンスを最適化する必要があります。このテーブルは、現在 `purchase_date` でパーティション分割（Partitioning）されています。しかし、通常「特定の日付範囲内」の「customer_id」をフィルターとしてクエリされます。カーディナリティが高い customer_id で検索する際、各パーティション内の複数のファイルにデータが分散し、全スキャンが発生してコストが増加しています。効率的な読み取りのために、データレイアウトをどのように最適化すべきでしょうか?",
+        options: [
+            "(A) 既存のパーティショニングを維持しながら、customer_id に対してリキッドクラスタリング (Liquid Clustering) を実装するようテーブルを変更する。",
+            "(B) テーブルを再構築し、customer_id と purchase_date の両方に基づいて リキッドクラスタリング (Liquid Clustering) を実装するよう変更する。",
+            "(C) テーブルを customer_id でパーティション分割するように変更する。",
+            "(D) クラスター上で Delta Cache (キャッシュ) を有効にして、頻繁に行われる読み取りをキャッシュし、パフォーマンスを向上させる。"
+        ],
+        answerIndex: 1,
+        explanation: "(B) purchase_date と customer_id の両方で頻繁にフィルタリングされる場合、従来のディレクトリベースのパーティショニング（Hive-style）よりも、「Liquid Clustering（リキッドクラスタリング）」を使用する方がはるかに柔軟で高パフォーマンスです。クラスタリングキーとして両方の列を指定（CLUSTER BY (purchase_date, customer_id)）することで、カーディナリティの高い列の検索が劇的に最適化されます。\n(A) パーティショニングとリキッドクラスタリングは併用せず、クラスタリングに置き換えるべきです。\n(C) カーディナリティの高い列でパーティション化すると、スモールファイル問題（無数の小さなディレクトリが生成される）を引き起こすためアンチパターンです。"
+    },
+    {
+        question: "問題 151:\nデータエンジニアは、ブロンズテーブルのデータクレンジングを担当しています。要件は、`customer_email` フィールドまたは `customer_phone` フィールドのいずれかがnullである行を削除することです。このデータクレンジングは、単一のメソッド呼び出しを使用して単一の操作で実行する必要があります。複数の列のnullを1回の呼び出しでフィルタリングできるPySparkのアプローチはどれですか?",
+        options: [
+            "(A) df.dropna(subset=['customer_email', 'customer_phone'])",
+            "(B) df.where('customer_email IS NOT NULL').where('customer_phone IS NOT NULL')",
+            "(C) df.na.drop(how='all')",
+            "(D) df.filter(col('customer_email').isNotNull() & col('customer_phone').isNotNull())"
+        ],
+        answerIndex: 0,
+        explanation: "(A) DataFrameから特定の複数の列（subset）を指定して、その列にnullが含まれる行を「単一のメソッド呼び出し」で削除するための最も簡潔で推奨されるPySparkメソッドは dropna(subset=[...]) です。デフォルトで how='any' となるため、指定したいずれかの列がnullであればその行を削除します。"
+    },
+    {
+        question: "問題 152:\nデータエンジニアチームは、Databricks上に新しいデータプラットフォームを実装することを決定し、現在、各データレイヤーに各種類のデータをどのように保存するかを検討しています。メダリオンアーキテクチャに適したレイヤーとデータの組み合わせは何でしょうか?",
+        options: [
+            "(A) シルバーレイヤー - 預金口座申請からの生データ",
+            "(B) ブロンズレイヤー - 国と都市ごとの現金預金額の概要",
+            "(C) シルバーレイヤー - クリーンアップされたマスター顧客データ",
+            "(D) ゴールドレイヤー - 重複のない送金取引"
+        ],
+        answerIndex: 2,
+        explanation: "(C) メダリオンアーキテクチャにおいて、シルバーレイヤー (Silver layer) はブロンズレイヤーの生データをクレンジング、フィルタリング、および重複排除して「エンタープライズのクリーンなマスターデータ」を提供する役割を持ちます。\n(A) 生データはブロンズレイヤーに保存されます。\n(B) ビジネスレベルの概要・集計データはゴールドレイヤーに保存されます。\n(D) 単純な重複排除（クレンジング）はシルバーレイヤーの役割です。"
+    },
+    {
+        question: "問題 153:\nデータエンジニアが、複数のソースシステムから同じ顧客レコードを受け取るブロンズテーブルをクリーンアップしています。重複する行は、`customer_id` と `email` は同じですが、`ingestion_timestamp` の値が異なります。シルバーテーブルには、`customer_id` と `email` の一意の組み合わせごとに1つのレコードのみが含まれる必要があります。ビジネスキーに基づいて正しく重複排除を行うPySpark操作はどれですか?",
+        options: [
+            "(A) df.dropDuplicates(['customer_id', 'email'])",
+            "(B) df.groupBy('customer_id', 'email').agg(max('ingestion_timestamp').alias('latest_ts'))",
+            "(C) df.select('customer_id', 'email').distinct()",
+            "(D) df.distinct()"
+        ],
+        answerIndex: 0,
+        explanation: "(A) PySparkにおいて、DataFrameから「特定の列（ビジネスキー）」の組み合わせに基づいて重複レコードを排除し、他の列も保持したまま一意の行だけを残す正しいメソッドは dropDuplicates(['列1', '列2']) です。"
+    },
+    {
+        question: "問題 154:\nデータエンジニアが、パートナー組織にDatabricksアカウントの使い方を指導しています。両チームはいくつかのビジネスユースケースを共有しています。データエンジニアは、Unity Catalogで管理されているDeltaテーブルと、それらのテーブルを作成するノートブック（ジョブの一部）をパートナー組織と共有する必要があります。データエンジニアは、必要な情報をシームレスに共有するにはどうすればよいでしょうか?",
+        options: [
+            "(A) すべてのコードを圧縮してメールで共有し、データレイクからのデータ取り込みを許可する。",
+            "(B) Delta Sharing を介して必要なデータセットとノートブックを共有する。Unity Catalog を介して権限を管理する。",
+            "(C) Unity Catalogを使用すれば、データやノートブックを簡単に共有できる。",
+            "(D) GitHub を介してコードベースへのアクセスを共有し、データレイクからデータセットを取り込めるようにする。"
+        ],
+        answerIndex: 1,
+        explanation: "(B) Databricks間の安全なクロスワークスペース（またはクロス組織）共有において、データ（Deltaテーブル）とAIアセット（ノートブックやモデル）の両方をシームレスに共有するための標準機能は、Unity Catalogによって管理される「Delta Sharing」です。Databricks to Databricks共有機能により、ノートブックも共有対象に含めることができます。"
+    },
+    {
+        question: "問題 155:\nデータエンジニアは、各タスクが前のタスクの正常な完了に依存するワークフローで、複数のタスクをスケジュールしたいと考えています。このワークフローは、再試行 (リトライ) と監視 (モニタリング) をサポートする必要があります。Databricksのどの機能を使用すべきですか?",
+        options: [
+            "(A) Databricks Jobs (Databricks ワークフロー)",
+            "(B) Spark UI",
+            "(C) Delta Lake",
+            "(D) DBFS"
+        ],
+        answerIndex: 0,
+        explanation: "(A) 複数のタスク（ノートブックやPythonスクリプト）の依存関係を設定し、スケジュール実行、失敗時の自動リトライ、そして監視（アラートや実行履歴の確認）を統合的に管理する機能は「Databricks Jobs（ワークフロー）」です。"
+    },
+    {
+        question: "問題 156:\n特定のユースケースに特化した、分断されたデータアーキテクチャ（サイロ化されたアーキテクチャ）を簡素化し、統合するために何が利用できるでしょうか?",
+        options: [
+            "(A) Delta Lake",
+            "(B) データレイク",
+            "(C) データウェアハウス",
+            "(D) データレイクハウス (Data Lakehouse)"
+        ],
+        answerIndex: 3,
+        explanation: "(D) 「データレイクハウス (Data Lakehouse)」アーキテクチャは、データレイクの柔軟性・スケーラビリティと、データウェアハウスのデータ管理機能・ACIDトランザクションを統合した概念です。これにより、これまでサイロ化されていたBI用（DWH）とAI/ML用（データレイク）のアーキテクチャを単一のプラットフォームに簡素化・統合します。"
+    },
+    {
+        question: "問題 157:\nデータエンジニアがDatabricksノートブックでバッチETLパイプラインの設計と管理を行っています。エンジニアは、異なるソースからの大規模なデータセットをクリーンアップ、変換、結合するために、SQLとPythonのコードを記述しています。エンジニアは、これらの手順を定期的に実行し、データパイプラインの一部としてスケジュールできる構造化されたプロセスに整理したいと考えています。このユースケースに適用できるDatabricksノートブックの機能はどれですか?",
+        options: [
+            "(A) リアルタイムストリーミング対応",
+            "(B) 共同編集 (Co-authoring)",
+            "(C) タスクワークフローとジョブスケジューリング",
+            "(D) ノートブックのバージョン管理"
+        ],
+        answerIndex: 2,
+        explanation: "(C) Databricksノートブックには、右上や右サイドバーから直接スケジュールを設定し、ノートブック自体をジョブ（タスクワークフロー）として定期実行させる「ジョブスケジューリング」機能がシームレスに統合されています。"
+    },
+    {
+        question: "問題 158:\nデータエンジニアは、開発中にSpark DataFrameのスキーマを調べて、列名とデータ型を理解したいと考えています。DataFrameのどのメソッドがスキーマをツリー形式で出力しますか?",
+        options: [
+            "(A) getSchema()",
+            "(B) printSchema()",
+            "(C) showSchema()",
+            "(D) describeSchema()"
+        ],
+        answerIndex: 1,
+        explanation: "(B) PySparkにおいて、DataFrameの構造（列名、データ型、Nullを許可するかどうか）を人間が読みやすいツリー形式（インデントされた階層構造）で標準出力に表示するメソッドは printSchema() です。"
+    },
+    {
+        question: "問題 159:\nある企業が、Databricksを使用していないものの、Delta形式で保存された大規模な履歴データセットへのアクセスを必要とするパートナーと共同作業を行っています。データエンジニアは、パートナーがアカウントを作成することなく、読み取り専用アクセスで安全にデータにアクセスできるようにする必要があります。データはどのように共有すべきでしょうか?",
+        options: [
+            "(A) データセットをCSVファイルにエクスポートし、手動でパートナーのシステムに転送して共有する。",
+            "(B) パートナーにDatabricksワークスペースへのアクセス権を付与し、Deltaテーブルへの完全な書き込み権限を割り当てて、データセットを変更できるようにする。",
+            "(C) Unity Catalogを使用してデータセットを共有し、両チームが同じ組織内のデータに対して完全な書き込みアクセス権を持つようにする。",
+            "(D) Delta Sharingを使用してデータセットを共有する。これにより、パートナーはDatabricksアカウントを必要とせずに、安全な読み取り専用URLを使用してデータにアクセスでき、データが変更されないことが保証される。"
+        ],
+        answerIndex: 3,
+        explanation: "(D) Delta Sharingの「オープン共有 (Open Sharing)」機能を使用すると、Databricksを使用していない外部のパートナーに対しても、アカウント作成不要で安全なダウンロードURLやクレデンシャルを提供し、大規模なDeltaテーブルを読み取り専用で直接共有することができます。"
+    },
+    {
+        question: "問題 160:\nデータエンジニアが、クラウドストレージから新しいデータを取り込むための Auto Loader スクリプトを作成しています。スキーマが予期せず変更された場合、データ取り込みは即座に失敗する必要があります。そして、変更が下流のソースで確認され、意図した変更であることが検証されるまで、データ取り込みは失敗したままである必要があります。Auto Loaderのどの cloudFiles.schemaEvolutionMode 設定がこの要件を満たしますか?",
+        options: [
+            "(A) failOnNewColumns (新しい列で失敗)",
+            "(B) none (なし)",
+            "(C) rescue (レスキュー)",
+            "(D) addNewColumns (新しい列を追加)"
+        ],
+        answerIndex: 0,
+        explanation: "(A) Auto Loaderのスキーマ進化モードにおいて、新しい列などのスキーマ変更が検出された際に自動的にストリームを「失敗・停止 (Fail)」させる設定は failOnNewColumns です。これにより、意図しないデータ構造の変更がパイプラインに流れ込むのを防ぎ、エンジニアが確認して承認するまで取り込みをブロックできます。"
     }
 ];
