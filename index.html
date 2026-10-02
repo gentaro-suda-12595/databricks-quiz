@@ -54,6 +54,25 @@
         const nextBtn = document.getElementById('next-btn');
         const progressText = document.getElementById('progress');
 
+        // ページ読み込み時に保存された進捗を復元
+        function initQuiz() {
+            const savedIndex = localStorage.getItem('db_quiz_index');
+            const savedScore = localStorage.getItem('db_quiz_score');
+            const savedIncorrect = localStorage.getItem('db_quiz_incorrect');
+
+            if (savedIndex !== null) {
+                // 前回途中まで進んでいた場合、続きから始めるか確認
+                if (confirm('前回の回答途中のデータがあります。続きから再開しますか？\n（「キャンセル」を選ぶと最初からスタートします）')) {
+                    currentQuestionIndex = parseInt(savedIndex, 10);
+                    score = parseInt(savedScore, 10) || 0;
+                    incorrectQuestions = JSON.parse(savedIncorrect) || [];
+                } else {
+                    clearProgress();
+                }
+            }
+            loadQuestion();
+        }
+
         function loadQuestion() {
             const currentQ = quizData[currentQuestionIndex];
             questionText.textContent = currentQ.question;
@@ -75,7 +94,6 @@
             const currentQ = quizData[currentQuestionIndex];
             const buttons = optionsContainer.querySelectorAll('.option');
             
-            // 全ボタンを無効化
             buttons.forEach(btn => btn.disabled = true);
 
             if (selectedIndex === currentQ.answerIndex) {
@@ -86,6 +104,9 @@
                 buttons[currentQ.answerIndex].classList.add('correct');
                 incorrectQuestions.push(currentQ);
             }
+
+            // 回答時に現在の進捗をブラウザに保存
+            saveProgress();
 
             explanationBox.innerHTML = `<strong>【解説】</strong>\n${currentQ.explanation}`;
             explanationBox.style.display = 'block';
@@ -105,7 +126,24 @@
             }
         }
 
+        // 進捗をブラウザに保存する処理
+        function saveProgress() {
+            localStorage.setItem('db_quiz_index', currentQuestionIndex + 1); // 次の問題インデックスを保存
+            localStorage.setItem('db_quiz_score', score);
+            localStorage.setItem('db_quiz_incorrect', JSON.stringify(incorrectQuestions));
+        }
+
+        // 保存された進捗を消去する処理
+        function clearProgress() {
+            localStorage.removeItem('db_quiz_index');
+            localStorage.removeItem('db_quiz_score');
+            localStorage.removeItem('db_quiz_removeItem');
+        }
+
         function showResults() {
+            // テスト終了時は進捗保存データをクリア
+            clearProgress();
+
             document.getElementById('quiz-container').classList.add('hidden');
             document.getElementById('result-container').classList.remove('hidden');
             
@@ -116,7 +154,7 @@
             if (incorrectQuestions.length === 0) {
                 document.getElementById('review-title').textContent = '全問正解です！素晴らしい！';
             } else {
-                incorrectQuestions.forEach((q, i) => {
+                incorrectQuestions.forEach((q) => {
                     const div = document.createElement('div');
                     div.className = 'review-item';
                     div.innerHTML = `<strong>Q. ${q.question}</strong><br><br>
@@ -127,8 +165,8 @@
             }
         }
 
-        // 初期化
-        loadQuestion();
+        // 初期化実行
+        initQuiz();
     </script>
 </body>
 </html>
