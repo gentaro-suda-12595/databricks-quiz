@@ -8,49 +8,86 @@
         body { font-family: 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; background-color: #f4f7f6; }
         .container { background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
         h1 { text-align: center; color: #2c3e50; font-size: 1.5em; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
-        .progress { font-weight: bold; color: #7f8c8d; margin-bottom: 20px; }
-        .question { font-size: 1.2em; margin-bottom: 20px; white-space: pre-wrap; }
+        
+        /* フォーム系 */
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: bold; margin-bottom: 8px; color: #2c3e50; }
+        select { width: 100%; padding: 12px; font-size: 1.1em; border-radius: 5px; border: 1px solid #bdc3c7; background: #fff; }
+        
+        /* ボタン系 */
+        .btn { width: 100%; padding: 15px; background: #3498db; color: #fff; border: none; border-radius: 5px; font-size: 1.1em; cursor: pointer; transition: background 0.2s; }
+        .btn:hover:not(:disabled) { background: #2980b9; }
+        .btn:disabled { background: #bdc3c7; cursor: not-allowed; }
+        .btn-secondary { background: #95a5a6; }
+        .btn-secondary:hover { background: #7f8c8d; }
+        .button-group { display: flex; gap: 10px; margin-top: 20px; }
+        .button-group .btn { flex: 1; }
+        
+        /* クイズ画面系 */
+        .header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #ecf0f1; padding-bottom: 10px; }
+        .progress { font-weight: bold; color: #7f8c8d; font-size: 1.1em; }
+        .stat-badge { font-size: 0.85em; background: #e8f4f8; color: #2980b9; padding: 5px 10px; border-radius: 20px; font-weight: bold; }
+        .stat-badge.incorrect-last { background: #f8d7da; color: #c0392b; }
+        
+        .question { font-size: 1.2em; margin-bottom: 20px; white-space: pre-wrap; font-weight: bold; }
         .option { display: block; width: 100%; text-align: left; margin: 10px 0; padding: 15px; border: 1px solid #bdc3c7; border-radius: 5px; cursor: pointer; background: #fff; font-size: 1em; transition: 0.2s; }
         .option:hover:not(:disabled) { background: #ecf0f1; border-color: #95a5a6; }
         .option:disabled { cursor: not-allowed; }
+        
         .correct { background: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
         .incorrect { background: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
         .explanation { display: none; margin-top: 20px; padding: 15px; background: #e8f4f8; border-left: 5px solid #3498db; border-radius: 4px; white-space: pre-wrap; }
-        .btn { width: 100%; padding: 15px; margin-top: 20px; background: #3498db; color: #fff; border: none; border-radius: 5px; font-size: 1.1em; cursor: pointer; }
-        .btn:hover { background: #2980b9; }
-        .btn-secondary { background: #95a5a6; }
-        .btn-secondary:hover { background: #7f8c8d; }
-        .hidden { display: none; }
+        
+        .hidden { display: none !important; }
         .review-item { border-bottom: 1px solid #eee; padding: 15px 0; }
-        select { width: 100%; padding: 12px; font-size: 1.1em; margin: 15px 0; border-radius: 5px; border: 1px solid #bdc3c7; }
+        .reset-link { display: block; text-align: center; margin-top: 20px; font-size: 0.9em; color: #e74c3c; cursor: pointer; text-decoration: underline; }
     </style>
 </head>
 <body>
 
-    <!-- 出題数選択画面 -->
+    <!-- 出題数・範囲選択画面 -->
     <div class="container" id="start-container">
         <h1>Databricks データエンジニア 問題集</h1>
-        <p style="text-align: center;">チャレンジする問題数を選択してください。</p>
-        <select id="question-count-select">
-            <!-- JavaScriptで動的に選択肢（10問刻み）を生成 -->
-        </select>
-        <button class="btn" onclick="startNewQuiz()">学習を開始する</button>
+        
+        <div class="form-group">
+            <label for="filter-select">出題範囲</label>
+            <select id="filter-select" onchange="updateCountOptions()">
+                <option value="all">すべての問題</option>
+                <option value="unanswered">未出題のみ</option>
+                <option value="incorrect">前回不正解のみ</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="question-count-select">出題数</label>
+            <select id="question-count-select"></select>
+        </div>
+
+        <button class="btn" id="start-btn" onclick="startNewQuiz()">学習を開始する</button>
+        <span class="reset-link" onclick="resetStats()">学習履歴（成績）をリセットする</span>
     </div>
 
     <!-- クイズ画面 -->
     <div class="container hidden" id="quiz-container">
-        <div class="progress" id="progress">問題 1 / 10</div>
+        <div class="header-info">
+            <div class="progress" id="progress">問題 1 / 10</div>
+            <div class="stat-badge" id="stat-badge">初回挑戦</div>
+        </div>
         <div class="question" id="question-text"></div>
         <div id="options-container"></div>
         <div class="explanation" id="explanation"></div>
-        <button class="btn hidden" id="next-btn" onclick="nextQuestion()">次の問題へ</button>
+        
+        <div class="button-group">
+            <button class="btn btn-secondary hidden" id="prev-btn" onclick="prevQuestion()">前の問題へ</button>
+            <button class="btn hidden" id="next-btn" onclick="nextQuestion()">次の問題へ</button>
+        </div>
     </div>
 
     <!-- 結果画面 -->
     <div class="container hidden" id="result-container">
         <h1>結果発表</h1>
         <h2 id="score-text" style="text-align:center;"></h2>
-        <button class="btn" style="margin-bottom:10px;" onclick="resetToStart()">別の出題数で挑戦する</button>
+        <button class="btn" style="margin-bottom:10px;" onclick="resetToStart()">トップに戻る</button>
         <h3 id="review-title" style="margin-top:30px;">間違えた問題の復習</h3>
         <div id="review-container"></div>
     </div>
@@ -59,10 +96,11 @@
     <script src="questions.js"></script>
     
     <script>
-        let currentQuestions = []; // 今回出題する問題リスト
-        let currentQuestionIndex = 0;
-        let score = 0;
-        let incorrectQuestions = [];
+        // --- 状態管理 ---
+        let userStats = {}; // { originalIndex: { attempts: 0, corrects: 0, lastStatus: 'correct'|'incorrect' } }
+        let currentSessionIndices = []; // 今回出題する問題の「元のインデックス」配列
+        let currentQuestionIndex = 0;   // 現在出題中の進行度 (0 ~ currentSessionIndices.length - 1)
+        let userAnswers = [];           // 今回のセッションの回答履歴
 
         const startContainer = document.getElementById('start-container');
         const quizContainer = document.getElementById('quiz-container');
@@ -72,168 +110,268 @@
         const optionsContainer = document.getElementById('options-container');
         const explanationBox = document.getElementById('explanation');
         const nextBtn = document.getElementById('next-btn');
+        const prevBtn = document.getElementById('prev-btn');
         const progressText = document.getElementById('progress');
-        const selectBox = document.getElementById('question-count-select');
+        const statBadge = document.getElementById('stat-badge');
+        
+        const filterSelect = document.getElementById('filter-select');
+        const countSelect = document.getElementById('question-count-select');
+        const startBtn = document.getElementById('start-btn');
 
-        // 初期化処理
+        // --- 初期化処理 ---
         function initApp() {
-            setupSelectOptions();
+            // 履歴のロード
+            const loadedStats = localStorage.getItem('db_quiz_stats');
+            if (loadedStats) userStats = JSON.parse(loadedStats);
 
-            // 保存された途中経過があるかチェック
-            const savedIndex = localStorage.getItem('db_quiz_index');
-            const savedScore = localStorage.getItem('db_quiz_score');
-            const savedQuestions = localStorage.getItem('db_quiz_questions');
-            const savedIncorrect = localStorage.getItem('db_quiz_incorrect');
+            updateCountOptions(); // セレクトボックスの初期描画
 
-            if (savedIndex !== null && savedQuestions !== null) {
-                if (confirm('前回の回答途中のデータがあります。続きから再開しますか？\n（「キャンセル」を選ぶと最初からスタートします）')) {
-                    currentQuestions = JSON.parse(savedQuestions);
-                    currentQuestionIndex = parseInt(savedIndex, 10);
-                    score = parseInt(savedScore, 10) || 0;
-                    incorrectQuestions = JSON.parse(savedIncorrect) || [];
+            // 中断データのロード
+            const savedSessionIndices = localStorage.getItem('db_quiz_session_indices');
+            const savedSessionCurrent = localStorage.getItem('db_quiz_session_current');
+            const savedAnswers = localStorage.getItem('db_quiz_session_answers');
+
+            if (savedSessionIndices !== null) {
+                if (confirm('前回の回答途中のデータがあります。続きから再開しますか？\n（「キャンセル」を選ぶとトップ画面に戻ります）')) {
+                    currentSessionIndices = JSON.parse(savedSessionIndices);
+                    currentQuestionIndex = parseInt(savedSessionCurrent, 10);
+                    userAnswers = savedAnswers ? JSON.parse(savedAnswers) : new Array(currentSessionIndices.length).fill(null);
 
                     startContainer.classList.add('hidden');
                     quizContainer.classList.remove('hidden');
                     loadQuestion();
                     return;
                 } else {
-                    clearProgress();
+                    clearSession();
                 }
             }
         }
 
-        // 10問刻みのセレクトボックスオプションを動的生成
-        function setupSelectOptions() {
-            selectBox.innerHTML = '';
-            const total = quizData.length;
-            
+        // --- 出題範囲に応じたインデックスの取得 ---
+        function getFilteredIndices(filter) {
+            let indices = [];
+            for (let i = 0; i < quizData.length; i++) {
+                const stat = userStats[i];
+                if (filter === 'all') {
+                    indices.push(i);
+                } else if (filter === 'unanswered') {
+                    if (!stat || stat.attempts === 0) indices.push(i);
+                } else if (filter === 'incorrect') {
+                    if (stat && stat.lastStatus === 'incorrect') indices.push(i);
+                }
+            }
+            return indices;
+        }
+
+        // --- 出題数のセレクトボックスを動的更新 ---
+        function updateCountOptions() {
+            countSelect.innerHTML = '';
+            const filter = filterSelect.value;
+            const availableIndices = getFilteredIndices(filter);
+            const total = availableIndices.length;
+
+            if (total === 0) {
+                const opt = document.createElement('option');
+                opt.value = 0;
+                opt.textContent = '対象の問題がありません';
+                countSelect.appendChild(opt);
+                startBtn.disabled = true;
+                return;
+            }
+
+            startBtn.disabled = false;
             for (let count = 10; count < total; count += 10) {
                 const opt = document.createElement('option');
                 opt.value = count;
                 opt.textContent = `${count} 問`;
-                selectBox.appendChild(opt);
+                countSelect.appendChild(opt);
             }
-
-            // 全問選択肢を追加
+            
             const allOpt = document.createElement('option');
             allOpt.value = total;
             allOpt.textContent = `全問 (${total}問)`;
-            allOpt.selected = true; // デフォルトは全問
-            selectBox.appendChild(allOpt);
+            allOpt.selected = true;
+            countSelect.appendChild(allOpt);
         }
 
-        // 新規でクイズを開始
+        // --- クイズ開始 ---
         function startNewQuiz() {
-            clearProgress();
-            const count = parseInt(selectBox.value, 10);
-
-            // 全問題から指定数をランダムに抽出（毎回シャッフル）
-            const shuffled = [...quizData].sort(() => 0.5 - Math.random());
-            currentQuestions = shuffled.slice(0, count);
+            clearSession();
+            const filter = filterSelect.value;
+            const count = parseInt(countSelect.value, 10);
+            
+            let indices = getFilteredIndices(filter);
+            indices.sort(() => 0.5 - Math.random()); // シャッフル
+            currentSessionIndices = indices.slice(0, count);
 
             currentQuestionIndex = 0;
-            score = 0;
-            incorrectQuestions = [];
+            userAnswers = new Array(currentSessionIndices.length).fill(null);
 
             startContainer.classList.add('hidden');
             quizContainer.classList.remove('hidden');
 
-            saveProgress();
+            saveSession();
             loadQuestion();
         }
 
+        // --- 問題の描画 ---
         function loadQuestion() {
-            const currentQ = currentQuestions[currentQuestionIndex];
+            const originalIdx = currentSessionIndices[currentQuestionIndex];
+            const currentQ = quizData[originalIdx];
+            const stat = userStats[originalIdx];
+
+            // バッジの表示
+            statBadge.className = 'stat-badge';
+            if (!stat || stat.attempts === 0) {
+                statBadge.textContent = '初回挑戦';
+            } else {
+                const mark = stat.lastStatus === 'correct' ? '⭕️' : '❌';
+                statBadge.textContent = `過去: ${stat.attempts}回中 ${stat.corrects}回正解 (前回: ${mark})`;
+                if (stat.lastStatus === 'incorrect') statBadge.classList.add('incorrect-last');
+            }
+
             questionText.textContent = currentQ.question;
-            progressText.textContent = `問題 ${currentQuestionIndex + 1} / ${currentQuestions.length}`;
+            progressText.textContent = `問題 ${currentQuestionIndex + 1} / ${currentSessionIndices.length}`;
             optionsContainer.innerHTML = '';
             explanationBox.style.display = 'none';
             nextBtn.classList.add('hidden');
+
+            if (currentQuestionIndex > 0) {
+                prevBtn.classList.remove('hidden');
+            } else {
+                prevBtn.classList.add('hidden');
+            }
+
+            const answeredIndex = userAnswers[currentQuestionIndex];
 
             currentQ.options.forEach((option, index) => {
                 const button = document.createElement('button');
                 button.textContent = option;
                 button.className = 'option';
-                button.onclick = () => selectAnswer(index, button);
+
+                if (answeredIndex !== null) {
+                    button.disabled = true;
+                    if (index === currentQ.answerIndex) {
+                        button.classList.add('correct');
+                    } else if (index === answeredIndex) {
+                        button.classList.add('incorrect');
+                    }
+                } else {
+                    button.onclick = () => selectAnswer(index);
+                }
                 optionsContainer.appendChild(button);
             });
+
+            if (answeredIndex !== null) {
+                explanationBox.innerHTML = `<strong>【解説】</strong>\n${currentQ.explanation}`;
+                explanationBox.style.display = 'block';
+                nextBtn.classList.remove('hidden');
+                nextBtn.textContent = (currentQuestionIndex === currentSessionIndices.length - 1) ? '結果を見る' : '次の問題へ';
+            }
         }
 
-        function selectAnswer(selectedIndex, selectedButton) {
-            const currentQ = currentQuestions[currentQuestionIndex];
-            const buttons = optionsContainer.querySelectorAll('.option');
+        // --- 回答選択時の処理 ---
+        function selectAnswer(selectedIndex) {
+            userAnswers[currentQuestionIndex] = selectedIndex;
             
-            buttons.forEach(btn => btn.disabled = true);
-
-            if (selectedIndex === currentQ.answerIndex) {
-                selectedButton.classList.add('correct');
-                score++;
-            } else {
-                selectedButton.classList.add('incorrect');
-                if (buttons[currentQ.answerIndex]) {
-                    buttons[currentQ.answerIndex].classList.add('correct');
-                }
-                incorrectQuestions.push(currentQ);
-            }
-
-            explanationBox.innerHTML = `<strong>【解説】</strong>\n${currentQ.explanation}`;
-            explanationBox.style.display = 'block';
-            nextBtn.classList.remove('hidden');
+            // 履歴（Stats）の更新
+            const originalIdx = currentSessionIndices[currentQuestionIndex];
+            const isCorrect = (selectedIndex === quizData[originalIdx].answerIndex);
             
-            if (currentQuestionIndex === currentQuestions.length - 1) {
-                nextBtn.textContent = '結果を見る';
-            } else {
-                nextBtn.textContent = '次の問題へ';
+            if (!userStats[originalIdx]) {
+                userStats[originalIdx] = { attempts: 0, corrects: 0, lastStatus: '' };
             }
-
-            saveProgress();
+            userStats[originalIdx].attempts++;
+            if (isCorrect) userStats[originalIdx].corrects++;
+            userStats[originalIdx].lastStatus = isCorrect ? 'correct' : 'incorrect';
+            
+            localStorage.setItem('db_quiz_stats', JSON.stringify(userStats)); // 履歴を永続保存
+            
+            saveSession();
+            loadQuestion(); 
         }
 
         function nextQuestion() {
-            currentQuestionIndex++;
-            if (currentQuestionIndex < currentQuestions.length) {
+            if (currentQuestionIndex < currentSessionIndices.length - 1) {
+                currentQuestionIndex++;
+                saveSession();
                 loadQuestion();
             } else {
                 showResults();
             }
         }
 
-        function saveProgress() {
-            localStorage.setItem('db_quiz_index', currentQuestionIndex);
-            localStorage.setItem('db_quiz_score', score);
-            localStorage.setItem('db_quiz_questions', JSON.stringify(currentQuestions));
-            localStorage.setItem('db_quiz_incorrect', JSON.stringify(incorrectQuestions));
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                saveSession();
+                loadQuestion();
+            }
         }
 
-        function clearProgress() {
-            localStorage.removeItem('db_quiz_index');
-            localStorage.removeItem('db_quiz_score');
-            localStorage.removeItem('db_quiz_questions');
-            localStorage.removeItem('db_quiz_incorrect');
+        // --- セッション保存（中断復帰用） ---
+        function saveSession() {
+            localStorage.setItem('db_quiz_session_indices', JSON.stringify(currentSessionIndices));
+            localStorage.setItem('db_quiz_session_current', currentQuestionIndex);
+            localStorage.setItem('db_quiz_session_answers', JSON.stringify(userAnswers));
         }
 
+        function clearSession() {
+            localStorage.removeItem('db_quiz_session_indices');
+            localStorage.removeItem('db_quiz_session_current');
+            localStorage.removeItem('db_quiz_session_answers');
+        }
+
+        // --- 履歴リセット ---
+        function resetStats() {
+            if (confirm('すべての学習履歴（解いた回数や正誤データ）を完全に削除します。よろしいですか？')) {
+                userStats = {};
+                localStorage.removeItem('db_quiz_stats');
+                clearSession();
+                updateCountOptions();
+                alert('履歴をリセットしました。');
+            }
+        }
+
+        // --- 結果画面の表示 ---
         function showResults() {
-            clearProgress();
-
+            clearSession();
             quizContainer.classList.add('hidden');
             resultContainer.classList.remove('hidden');
             
-            const percentage = Math.round((score / currentQuestions.length) * 100);
-            document.getElementById('score-text').textContent = `正答率: ${percentage}% (${score} / ${currentQuestions.length}問 正解)`;
+            let score = 0;
+            let incorrectList = [];
+
+            currentSessionIndices.forEach((originalIdx, i) => {
+                const q = quizData[originalIdx];
+                const userAnswer = userAnswers[i];
+                if (userAnswer === q.answerIndex) {
+                    score++;
+                } else {
+                    incorrectList.push({
+                        question: q,
+                        selected: userAnswer !== null ? q.options[userAnswer] : "未回答"
+                    });
+                }
+            });
+            
+            const percentage = Math.round((score / currentSessionIndices.length) * 100);
+            document.getElementById('score-text').textContent = `正答率: ${percentage}% (${score} / ${currentSessionIndices.length}問 正解)`;
 
             const reviewContainer = document.getElementById('review-container');
             reviewContainer.innerHTML = '';
 
-            if (incorrectQuestions.length === 0) {
+            if (incorrectList.length === 0) {
                 document.getElementById('review-title').textContent = '全問正解です！素晴らしい！';
             } else {
                 document.getElementById('review-title').textContent = '間違えた問題の復習';
-                incorrectQuestions.forEach((q) => {
+                incorrectList.forEach((item) => {
                     const div = document.createElement('div');
                     div.className = 'review-item';
-                    div.innerHTML = `<strong>Q. ${q.question}</strong><br><br>
-                                     <span style="color:green;">正解: ${q.options[q.answerIndex]}</span><br>
-                                     <div style="margin-top:10px; font-size:0.9em; color:#555; white-space: pre-wrap;">${q.explanation}</div>`;
+                    div.innerHTML = `<strong>Q. ${item.question.question}</strong><br><br>
+                                     <span style="color:#e74c3c;">あなたの回答: ${item.selected}</span><br>
+                                     <span style="color:#27ae60; font-weight:bold;">正解: ${item.question.options[item.question.answerIndex]}</span><br>
+                                     <div style="margin-top:10px; font-size:0.9em; color:#555; white-space: pre-wrap;">${item.question.explanation}</div>`;
                     reviewContainer.appendChild(div);
                 });
             }
@@ -242,6 +380,7 @@
         function resetToStart() {
             resultContainer.classList.add('hidden');
             startContainer.classList.remove('hidden');
+            updateCountOptions(); // 戻ったときに未出題などの件数を再計算する
         }
 
         // 起動実行
