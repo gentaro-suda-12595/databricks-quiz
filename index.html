@@ -18,6 +18,8 @@
         .btn:disabled { background: #bdc3c7; cursor: not-allowed; }
         .btn-secondary { background: #95a5a6; }
         .btn-secondary:hover { background: #7f8c8d; }
+        .btn-success { background: #27ae60; }
+        .btn-success:hover { background: #219653; }
         .button-group { display: flex; gap: 10px; margin-top: 20px; }
         .button-group .btn { flex: 1; }
         
@@ -32,8 +34,13 @@
         .option:hover:not(:disabled) { background: #ecf0f1; border-color: #95a5a6; }
         .option:disabled { cursor: not-allowed; }
         
-        .correct { background: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
-        .incorrect { background: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
+        /* 選択中の仮ハイライト */
+        .selected-temp { background: #e8f4f8 !important; border: 2px solid #3498db !important; font-weight: bold; color: #2980b9; }
+        
+        /* 確定後の正誤カラー */
+        .correct { background: #d4edda !important; border: 2px solid #c3e6cb !important; color: #155724; font-weight: bold; }
+        .incorrect { background: #f8d7da !important; border: 2px solid #f5c6cb !important; color: #721c24; }
+        
         .explanation { display: none; margin-top: 20px; padding: 15px; background: #e8f4f8; border-left: 5px solid #3498db; border-radius: 4px; white-space: pre-wrap; }
         
         .hidden { display: none !important; }
@@ -86,7 +93,8 @@
         
         <div class="button-group">
             <button class="btn btn-secondary hidden" id="prev-btn" onclick="prevQuestion()">前の問題へ</button>
-            <button class="btn hidden" id="next-btn" onclick="nextQuestion()">次の問題へ</button>
+            <button class="btn hidden" id="answer-btn" onclick="submitAnswer()">解答する</button>
+            <button class="btn btn-success hidden" id="next-btn" onclick="nextQuestion()">次の問題へ</button>
         </div>
     </div>
 
@@ -106,6 +114,7 @@
         let currentSessionIndices = []; 
         let currentQuestionIndex = 0;   
         let userAnswers = [];           
+        let currentTempSelection = null; // 【追加】ユーザーが一時的に選択している選択肢
 
         const startContainer = document.getElementById('start-container');
         const quizContainer = document.getElementById('quiz-container');
@@ -114,6 +123,7 @@
         const questionText = document.getElementById('question-text');
         const optionsContainer = document.getElementById('options-container');
         const explanationBox = document.getElementById('explanation');
+        const answerBtn = document.getElementById('answer-btn'); // 【追加】
         const nextBtn = document.getElementById('next-btn');
         const prevBtn = document.getElementById('prev-btn');
         const progressText = document.getElementById('progress');
@@ -129,7 +139,6 @@
             const loadedStats = localStorage.getItem('db_quiz_stats');
             if (loadedStats) userStats = JSON.parse(loadedStats);
 
-            // ジャンル一覧を動的に生成
             const categories = [...new Set(quizData.map(q => q.category || '未分類'))];
             categories.forEach(c => {
                 const opt = document.createElement('option');
@@ -160,7 +169,6 @@
             }
         }
 
-        // ジャンルと履歴フィルターの両方を加味してインデックスを取得
         function getFilteredIndices() {
             const filter = filterSelect.value;
             const categoryFilter = categorySelect.value;
@@ -171,12 +179,10 @@
                 const stat = userStats[i];
                 const qCategory = q.category || '未分類';
 
-                // ジャンルで絞り込み
                 if (categoryFilter !== 'all' && qCategory !== categoryFilter) {
                     continue; 
                 }
 
-                // 履歴で絞り込み
                 if (filter === 'all') {
                     indices.push(i);
                 } else if (filter === 'unanswered') {
@@ -236,6 +242,8 @@
         }
 
         function loadQuestion() {
+            currentTempSelection = null; // 仮選択をリセット
+            
             const originalIdx = currentSessionIndices[currentQuestionIndex];
             const currentQ = quizData[originalIdx];
             const stat = userStats[originalIdx];
@@ -251,10 +259,13 @@
 
             categoryBadge.textContent = currentQ.category || '未分類';
             questionText.textContent = currentQ.question;
-            progressText.textContent = `問題 ${currentQuestionIndex + 1} / ${currentSessionIndices.length}`;
             optionsContainer.innerHTML = '';
             explanationBox.style.display = 'none';
-            nextBtn.classList.add('hidden');
+            
+            answerBtn.classList.add('hidden'); // 解答ボタンを隠す
+            nextBtn.classList.add('hidden');   // 次へボタンを隠す
+
+            progressText.textContent = `問題 ${currentQuestionIndex + 1} / ${currentSessionIndices.length}`;
 
             if (currentQuestionIndex > 0) {
                 prevBtn.classList.remove('hidden');
@@ -270,6 +281,7 @@
                 button.className = 'option';
 
                 if (answeredIndex !== null) {
+                    // すでに解答済みの状態
                     button.disabled = true;
                     if (index === currentQ.answerIndex) {
                         button.classList.add('correct');
@@ -277,11 +289,13 @@
                         button.classList.add('incorrect');
                     }
                 } else {
-                    button.onclick = () => selectAnswer(index);
+                    // まだ解答していない状態（仮選択イベントをセット）
+                    button.onclick = () => selectTempOption(index, button);
                 }
                 optionsContainer.appendChild(button);
             });
 
+            // 既に解答済みなら解説と「次へ」を表示
             if (answeredIndex !== null) {
                 explanationBox.innerHTML = `<strong>【解説】</strong>\n${currentQ.explanation}`;
                 explanationBox.style.display = 'block';
@@ -290,11 +304,27 @@
             }
         }
 
-        function selectAnswer(selectedIndex) {
-            userAnswers[currentQuestionIndex] = selectedIndex;
+        // 【追加】選択肢をクリックしたときの仮選択処理
+        function selectTempOption(selectedIndex, buttonElement) {
+            currentTempSelection = selectedIndex;
+            
+            // すべてのボタンから青枠(selected-temp)を外して、クリックしたものだけに付ける
+            const buttons = optionsContainer.querySelectorAll('.option');
+            buttons.forEach(btn => btn.classList.remove('selected-temp'));
+            buttonElement.classList.add('selected-temp');
+            
+            // 解答ボタンを表示
+            answerBtn.classList.remove('hidden');
+        }
+
+        // 【変更】「解答する」ボタンを押したときの確定処理
+        function submitAnswer() {
+            if (currentTempSelection === null) return;
+            
+            userAnswers[currentQuestionIndex] = currentTempSelection;
             
             const originalIdx = currentSessionIndices[currentQuestionIndex];
-            const isCorrect = (selectedIndex === quizData[originalIdx].answerIndex);
+            const isCorrect = (currentTempSelection === quizData[originalIdx].answerIndex);
             
             if (!userStats[originalIdx]) {
                 userStats[originalIdx] = { attempts: 0, corrects: 0, lastStatus: '' };
@@ -305,6 +335,8 @@
             
             localStorage.setItem('db_quiz_stats', JSON.stringify(userStats));
             saveSession();
+            
+            // 画面を再描画して正誤の色付けと解説を表示
             loadQuestion(); 
         }
 
