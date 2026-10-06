@@ -34,14 +34,15 @@
         .option:hover:not(:disabled) { background: #ecf0f1; border-color: #95a5a6; }
         .option:disabled { cursor: not-allowed; }
         
-        /* 選択中の仮ハイライト */
         .selected-temp { background: #e8f4f8 !important; border: 2px solid #3498db !important; font-weight: bold; color: #2980b9; }
-        
-        /* 確定後の正誤カラー */
         .correct { background: #d4edda !important; border: 2px solid #c3e6cb !important; color: #155724; font-weight: bold; }
         .incorrect { background: #f8d7da !important; border: 2px solid #f5c6cb !important; color: #721c24; }
         
         .explanation { display: none; margin-top: 20px; padding: 15px; background: #e8f4f8; border-left: 5px solid #3498db; border-radius: 4px; white-space: pre-wrap; }
+        
+        /* リンクのスタイル */
+        .doc-link { color: #2980b9; text-decoration: underline; font-weight: bold; }
+        .doc-link:hover { color: #e67e22; }
         
         .hidden { display: none !important; }
         .review-item { border-bottom: 1px solid #eee; padding: 15px 0; }
@@ -50,7 +51,6 @@
 </head>
 <body>
 
-    <!-- 出題条件選択画面 -->
     <div class="container" id="start-container">
         <h1>Databricks データエンジニア 問題集</h1>
         
@@ -58,7 +58,6 @@
             <label for="category-select">ジャンル（分野）</label>
             <select id="category-select" onchange="updateCountOptions()">
                 <option value="all">すべてのジャンル</option>
-                <!-- JSで動的に追加されます -->
             </select>
         </div>
 
@@ -80,7 +79,6 @@
         <span class="reset-link" onclick="resetStats()">学習履歴（成績）をリセットする</span>
     </div>
 
-    <!-- クイズ画面 -->
     <div class="container hidden" id="quiz-container">
         <div class="header-info">
             <div class="progress" id="progress">問題 1 / 10</div>
@@ -98,7 +96,6 @@
         </div>
     </div>
 
-    <!-- 結果画面 -->
     <div class="container hidden" id="result-container">
         <h1>結果発表</h1>
         <h2 id="score-text" style="text-align:center;"></h2>
@@ -110,11 +107,52 @@
     <script src="questions.js"></script>
     
     <script>
+        // ==========================================
+        // 【追加】公式ドキュメントへのリンク辞書
+        // ここに単語とURLを登録すると、問題文や解説で自動的にリンクになります。
+        // ==========================================
+        const officialLinks = {
+            "Unity Catalog": "https://docs.databricks.com/ja/data-governance/unity-catalog/index.html",
+            "Delta Lake": "https://docs.databricks.com/ja/delta/index.html",
+            "Auto Loader": "https://docs.databricks.com/ja/ingestion/auto-loader/index.html",
+            "オートローダー": "https://docs.databricks.com/ja/ingestion/auto-loader/index.html",
+            "Delta Live Tables": "https://docs.databricks.com/ja/delta-live-tables/index.html",
+            "DLT": "https://docs.databricks.com/ja/delta-live-tables/index.html",
+            "構造化ストリーミング": "https://docs.databricks.com/ja/structured-streaming/index.html",
+            "Structured Streaming": "https://docs.databricks.com/ja/structured-streaming/index.html",
+            "Databricks SQL": "https://docs.databricks.com/ja/sql/index.html",
+            "Serverless": "https://docs.databricks.com/ja/serverless-compute/index.html",
+            "サーバーレス": "https://docs.databricks.com/ja/serverless-compute/index.html",
+            "Databricks Asset Bundles": "https://docs.databricks.com/ja/dev-tools/bundles/index.html",
+            "Lakehouse Federation": "https://docs.databricks.com/ja/query-federation/index.html",
+            "Photon": "https://docs.databricks.com/ja/compute/photon.html",
+            "VACUUM": "https://docs.databricks.com/ja/sql/language-manual/delta-vacuum.html",
+            "OPTIMIZE": "https://docs.databricks.com/ja/sql/language-manual/delta-optimize.html",
+            "MERGE INTO": "https://docs.databricks.com/ja/sql/language-manual/delta-merge-into.html",
+            "Z-Order": "https://docs.databricks.com/ja/delta/data-skipping.html#z-order-by",
+            "タイムトラベル": "https://docs.databricks.com/ja/delta/history.html",
+            "メダリオンアーキテクチャ": "https://docs.databricks.com/ja/lakehouse/medallion.html"
+        };
+
+        // テキスト内のキーワードをHTMLリンクタグに置換する関数
+        function addLinksToText(text) {
+            if (!text) return "";
+            let htmlText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;"); // XSS対策
+            
+            for (const [keyword, url] of Object.entries(officialLinks)) {
+                // キーワードを置換 (gフラグで文章中のすべてを置換)
+                const regex = new RegExp(keyword, "g");
+                htmlText = htmlText.replace(regex, `<a href="${url}" target="_blank" class="doc-link">${keyword}</a>`);
+            }
+            return htmlText;
+        }
+        // ==========================================
+
         let userStats = {}; 
         let currentSessionIndices = []; 
         let currentQuestionIndex = 0;   
         let userAnswers = [];           
-        let currentTempSelection = null; // 【追加】ユーザーが一時的に選択している選択肢
+        let currentTempSelection = null; 
 
         const startContainer = document.getElementById('start-container');
         const quizContainer = document.getElementById('quiz-container');
@@ -123,7 +161,7 @@
         const questionText = document.getElementById('question-text');
         const optionsContainer = document.getElementById('options-container');
         const explanationBox = document.getElementById('explanation');
-        const answerBtn = document.getElementById('answer-btn'); // 【追加】
+        const answerBtn = document.getElementById('answer-btn'); 
         const nextBtn = document.getElementById('next-btn');
         const prevBtn = document.getElementById('prev-btn');
         const progressText = document.getElementById('progress');
@@ -242,7 +280,7 @@
         }
 
         function loadQuestion() {
-            currentTempSelection = null; // 仮選択をリセット
+            currentTempSelection = null; 
             
             const originalIdx = currentSessionIndices[currentQuestionIndex];
             const currentQ = quizData[originalIdx];
@@ -258,12 +296,15 @@
             }
 
             categoryBadge.textContent = currentQ.category || '未分類';
-            questionText.textContent = currentQ.question;
+            
+            // 【変更】テキストを直接入れるのではなく、リンク化関数を通してから innerHTML に入れる
+            questionText.innerHTML = addLinksToText(currentQ.question);
+            
             optionsContainer.innerHTML = '';
             explanationBox.style.display = 'none';
             
-            answerBtn.classList.add('hidden'); // 解答ボタンを隠す
-            nextBtn.classList.add('hidden');   // 次へボタンを隠す
+            answerBtn.classList.add('hidden'); 
+            nextBtn.classList.add('hidden');   
 
             progressText.textContent = `問題 ${currentQuestionIndex + 1} / ${currentSessionIndices.length}`;
 
@@ -281,7 +322,6 @@
                 button.className = 'option';
 
                 if (answeredIndex !== null) {
-                    // すでに解答済みの状態
                     button.disabled = true;
                     if (index === currentQ.answerIndex) {
                         button.classList.add('correct');
@@ -289,35 +329,28 @@
                         button.classList.add('incorrect');
                     }
                 } else {
-                    // まだ解答していない状態（仮選択イベントをセット）
                     button.onclick = () => selectTempOption(index, button);
                 }
                 optionsContainer.appendChild(button);
             });
 
-            // 既に解答済みなら解説と「次へ」を表示
             if (answeredIndex !== null) {
-                explanationBox.innerHTML = `<strong>【解説】</strong>\n${currentQ.explanation}`;
+                // 【変更】解説テキストもリンク化関数を通す
+                explanationBox.innerHTML = `<strong>【解説】</strong><br><br>${addLinksToText(currentQ.explanation)}`;
                 explanationBox.style.display = 'block';
                 nextBtn.classList.remove('hidden');
                 nextBtn.textContent = (currentQuestionIndex === currentSessionIndices.length - 1) ? '結果を見る' : '次の問題へ';
             }
         }
 
-        // 【追加】選択肢をクリックしたときの仮選択処理
         function selectTempOption(selectedIndex, buttonElement) {
             currentTempSelection = selectedIndex;
-            
-            // すべてのボタンから青枠(selected-temp)を外して、クリックしたものだけに付ける
             const buttons = optionsContainer.querySelectorAll('.option');
             buttons.forEach(btn => btn.classList.remove('selected-temp'));
             buttonElement.classList.add('selected-temp');
-            
-            // 解答ボタンを表示
             answerBtn.classList.remove('hidden');
         }
 
-        // 【変更】「解答する」ボタンを押したときの確定処理
         function submitAnswer() {
             if (currentTempSelection === null) return;
             
@@ -335,8 +368,6 @@
             
             localStorage.setItem('db_quiz_stats', JSON.stringify(userStats));
             saveSession();
-            
-            // 画面を再描画して正誤の色付けと解説を表示
             loadQuestion(); 
         }
 
@@ -414,10 +445,12 @@
                 incorrectList.forEach((item) => {
                     const div = document.createElement('div');
                     div.className = 'review-item';
-                    div.innerHTML = `<strong>Q. ${item.question.question}</strong><br><br>
+                    
+                    // 【変更】復習画面のテキストもリンク化する
+                    div.innerHTML = `<strong>Q. ${addLinksToText(item.question.question)}</strong><br><br>
                                      <span style="color:#e74c3c;">あなたの回答: ${item.selected}</span><br>
                                      <span style="color:#27ae60; font-weight:bold;">正解: ${item.question.options[item.question.answerIndex]}</span><br>
-                                     <div style="margin-top:10px; font-size:0.9em; color:#555; white-space: pre-wrap;">${item.question.explanation}</div>`;
+                                     <div style="margin-top:10px; font-size:0.9em; color:#555; white-space: pre-wrap;">${addLinksToText(item.question.explanation)}</div>`;
                     reviewContainer.appendChild(div);
                 });
             }
