@@ -13,6 +13,10 @@
         .form-group label { display: block; font-weight: bold; margin-bottom: 8px; color: #2c3e50; }
         select { width: 100%; padding: 12px; font-size: 1.1em; border-radius: 5px; border: 1px solid #bdc3c7; background: #fff; }
         
+        /* 検索バーのスタイル */
+        #search-input { width: 100%; padding: 15px; font-size: 1.1em; border-radius: 5px; border: 1px solid #bdc3c7; margin-bottom: 20px; box-sizing: border-box; }
+        #search-input:focus { border-color: #3498db; outline: none; box-shadow: 0 0 5px rgba(52, 152, 219, 0.5); }
+
         .btn { width: 100%; padding: 15px; background: #3498db; color: #fff; border: none; border-radius: 5px; font-size: 1.1em; cursor: pointer; transition: background 0.2s; }
         .btn:hover:not(:disabled) { background: #2980b9; }
         .btn:disabled { background: #bdc3c7; cursor: not-allowed; }
@@ -40,17 +44,23 @@
         
         .explanation { display: none; margin-top: 20px; padding: 15px; background: #e8f4f8; border-left: 5px solid #3498db; border-radius: 4px; white-space: pre-wrap; }
         
-        /* リンクのスタイル */
         .doc-link { color: #2980b9; text-decoration: underline; font-weight: bold; }
         .doc-link:hover { color: #e67e22; }
         
         .hidden { display: none !important; }
         .review-item { border-bottom: 1px solid #eee; padding: 15px 0; }
         .reset-link { display: block; text-align: center; margin-top: 20px; font-size: 0.9em; color: #e74c3c; cursor: pointer; text-decoration: underline; }
+
+        /* 一覧・検索用スタイル */
+        .list-item { background: #fdfdfd; border: 1px solid #e1e8ed; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .list-item h4 { margin-top: 0; margin-bottom: 15px; color: #2c3e50; white-space: pre-wrap; font-size: 1.1em; }
+        .list-item .correct-answer { color: #27ae60; font-weight: bold; margin-bottom: 15px; font-size: 1.05em; }
+        .list-item .explanation-text { font-size: 0.95em; color: #555; white-space: pre-wrap; background: #e8f4f8; padding: 12px; border-radius: 4px; border-left: 4px solid #3498db; }
     </style>
 </head>
 <body>
 
+    <!-- 出題条件選択画面 -->
     <div class="container" id="start-container">
         <h1>Databricks データエンジニア 問題集</h1>
         
@@ -76,9 +86,21 @@
         </div>
 
         <button class="btn" id="start-btn" onclick="startNewQuiz()">学習を開始する</button>
+        <button class="btn btn-secondary" style="margin-top:15px;" onclick="openListMode()">🔍 問題一覧・キーワード検索</button>
         <span class="reset-link" onclick="resetStats()">学習履歴（成績）をリセットする</span>
     </div>
 
+    <!-- 検索・一覧画面 -->
+    <div class="container hidden" id="list-container">
+        <h1>問題一覧・キーワード検索</h1>
+        <button class="btn btn-secondary" style="margin-bottom:20px;" onclick="closeListMode()">トップに戻る</button>
+        
+        <input type="text" id="search-input" placeholder="検索キーワードを入力（例: Unity Catalog, JOIN）" onkeyup="filterList()">
+        
+        <div id="search-results"></div>
+    </div>
+
+    <!-- クイズ画面 -->
     <div class="container hidden" id="quiz-container">
         <div class="header-info">
             <div class="progress" id="progress">問題 1 / 10</div>
@@ -96,6 +118,7 @@
         </div>
     </div>
 
+    <!-- 結果画面 -->
     <div class="container hidden" id="result-container">
         <h1>結果発表</h1>
         <h2 id="score-text" style="text-align:center;"></h2>
@@ -107,10 +130,6 @@
     <script src="questions.js"></script>
     
     <script>
-        // ==========================================
-        // 【追加】公式ドキュメントへのリンク辞書
-        // ここに単語とURLを登録すると、問題文や解説で自動的にリンクになります。
-        // ==========================================
         const officialLinks = {
             "Unity Catalog": "https://docs.databricks.com/ja/data-governance/unity-catalog/index.html",
             "Delta Lake": "https://docs.databricks.com/ja/delta/index.html",
@@ -134,19 +153,16 @@
             "メダリオンアーキテクチャ": "https://docs.databricks.com/ja/lakehouse/medallion.html"
         };
 
-        // テキスト内のキーワードをHTMLリンクタグに置換する関数
         function addLinksToText(text) {
             if (!text) return "";
-            let htmlText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;"); // XSS対策
+            let htmlText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
             
             for (const [keyword, url] of Object.entries(officialLinks)) {
-                // キーワードを置換 (gフラグで文章中のすべてを置換)
-                const regex = new RegExp(keyword, "g");
-                htmlText = htmlText.replace(regex, `<a href="${url}" target="_blank" class="doc-link">${keyword}</a>`);
+                const regex = new RegExp(keyword, "gi"); // 大文字小文字を区別しない
+                htmlText = htmlText.replace(regex, `<a href="${url}" target="_blank" class="doc-link">$&</a>`);
             }
             return htmlText;
         }
-        // ==========================================
 
         let userStats = {}; 
         let currentSessionIndices = []; 
@@ -157,6 +173,7 @@
         const startContainer = document.getElementById('start-container');
         const quizContainer = document.getElementById('quiz-container');
         const resultContainer = document.getElementById('result-container');
+        const listContainer = document.getElementById('list-container'); // 【追加】
         
         const questionText = document.getElementById('question-text');
         const optionsContainer = document.getElementById('options-container');
@@ -172,6 +189,9 @@
         const filterSelect = document.getElementById('filter-select');
         const countSelect = document.getElementById('question-count-select');
         const startBtn = document.getElementById('start-btn');
+        
+        const searchInput = document.getElementById('search-input'); // 【追加】
+        const searchResults = document.getElementById('search-results'); // 【追加】
 
         function initApp() {
             const loadedStats = localStorage.getItem('db_quiz_stats');
@@ -296,8 +316,6 @@
             }
 
             categoryBadge.textContent = currentQ.category || '未分類';
-            
-            // 【変更】テキストを直接入れるのではなく、リンク化関数を通してから innerHTML に入れる
             questionText.innerHTML = addLinksToText(currentQ.question);
             
             optionsContainer.innerHTML = '';
@@ -335,7 +353,6 @@
             });
 
             if (answeredIndex !== null) {
-                // 【変更】解説テキストもリンク化関数を通す
                 explanationBox.innerHTML = `<strong>【解説】</strong><br><br>${addLinksToText(currentQ.explanation)}`;
                 explanationBox.style.display = 'block';
                 nextBtn.classList.remove('hidden');
@@ -446,7 +463,6 @@
                     const div = document.createElement('div');
                     div.className = 'review-item';
                     
-                    // 【変更】復習画面のテキストもリンク化する
                     div.innerHTML = `<strong>Q. ${addLinksToText(item.question.question)}</strong><br><br>
                                      <span style="color:#e74c3c;">あなたの回答: ${item.selected}</span><br>
                                      <span style="color:#27ae60; font-weight:bold;">正解: ${item.question.options[item.question.answerIndex]}</span><br>
@@ -460,6 +476,66 @@
             resultContainer.classList.add('hidden');
             startContainer.classList.remove('hidden');
             updateCountOptions(); 
+        }
+
+        // ==========================================
+        // 【追加】一覧・検索機能用のスクリプト
+        // ==========================================
+        function openListMode() {
+            startContainer.classList.add('hidden');
+            listContainer.classList.remove('hidden');
+            searchInput.value = ''; // 検索窓をリセット
+            filterList(); // 初期状態（全件表示）で描画
+        }
+
+        function closeListMode() {
+            listContainer.classList.add('hidden');
+            startContainer.classList.remove('hidden');
+        }
+
+        function filterList() {
+            const query = searchInput.value.toLowerCase().trim();
+            searchResults.innerHTML = '';
+            let count = 0;
+
+            quizData.forEach((q) => {
+                // 問題文、選択肢全体、解説文、カテゴリ を結合して検索対象にする
+                const searchableText = (
+                    (q.category || '') + " " + 
+                    q.question + " " + 
+                    q.options.join(" ") + " " + 
+                    q.explanation
+                ).toLowerCase();
+
+                // 検索キーワードが含まれていれば表示（空ならすべて表示）
+                if (query === '' || searchableText.includes(query)) {
+                    count++;
+                    const div = document.createElement('div');
+                    div.className = 'list-item';
+                    
+                    const correctAnswer = q.options[q.answerIndex];
+                    
+                    div.innerHTML = `
+                        <div class="category-badge">${q.category || '未分類'}</div>
+                        <h4>${addLinksToText(q.question)}</h4>
+                        <div class="correct-answer">正解: ${correctAnswer}</div>
+                        <div class="explanation-text"><strong>【解説】</strong><br>${addLinksToText(q.explanation)}</div>
+                    `;
+                    searchResults.appendChild(div);
+                }
+            });
+
+            // ヒット件数の表示コントロール
+            if (count === 0) {
+                searchResults.innerHTML = '<p style="text-align:center; color:#7f8c8d; margin-top:30px;">該当する問題が見つかりません。</p>';
+            } else if (query !== '') {
+                const summary = document.createElement('div');
+                summary.style.marginBottom = '15px';
+                summary.style.fontWeight = 'bold';
+                summary.style.color = '#2980b9';
+                summary.textContent = `🔍 ${count} 件ヒットしました`;
+                searchResults.insertBefore(summary, searchResults.firstChild);
+            }
         }
 
         initApp();
