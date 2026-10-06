@@ -13,7 +13,6 @@
         .form-group label { display: block; font-weight: bold; margin-bottom: 8px; color: #2c3e50; }
         select { width: 100%; padding: 12px; font-size: 1.1em; border-radius: 5px; border: 1px solid #bdc3c7; background: #fff; }
         
-        /* 検索バーのスタイル */
         #search-input { width: 100%; padding: 15px; font-size: 1.1em; border-radius: 5px; border: 1px solid #bdc3c7; margin-bottom: 20px; box-sizing: border-box; }
         #search-input:focus { border-color: #3498db; outline: none; box-shadow: 0 0 5px rgba(52, 152, 219, 0.5); }
 
@@ -43,7 +42,6 @@
         .incorrect { background: #f8d7da !important; border: 2px solid #f5c6cb !important; color: #721c24; }
         
         .explanation { display: none; margin-top: 20px; padding: 15px; background: #e8f4f8; border-left: 5px solid #3498db; border-radius: 4px; white-space: pre-wrap; }
-        
         .doc-link { color: #2980b9; text-decoration: underline; font-weight: bold; }
         .doc-link:hover { color: #e67e22; }
         
@@ -51,11 +49,17 @@
         .review-item { border-bottom: 1px solid #eee; padding: 15px 0; }
         .reset-link { display: block; text-align: center; margin-top: 20px; font-size: 0.9em; color: #e74c3c; cursor: pointer; text-decoration: underline; }
 
-        /* 一覧・検索用スタイル */
         .list-item { background: #fdfdfd; border: 1px solid #e1e8ed; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .list-item h4 { margin-top: 0; margin-bottom: 15px; color: #2c3e50; white-space: pre-wrap; font-size: 1.1em; }
         .list-item .correct-answer { color: #27ae60; font-weight: bold; margin-bottom: 15px; font-size: 1.05em; }
         .list-item .explanation-text { font-size: 0.95em; color: #555; white-space: pre-wrap; background: #e8f4f8; padding: 12px; border-radius: 4px; border-left: 4px solid #3498db; }
+
+        /* ダッシュボード用スタイル */
+        .dashboard-item { margin-bottom: 20px; }
+        .dashboard-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; color: #2c3e50; }
+        .progress-bar-bg { background: #ecf0f1; border-radius: 8px; height: 20px; width: 100%; overflow: hidden; position: relative; }
+        .progress-bar-fill { background: #27ae60; height: 100%; transition: width 0.5s ease; }
+        .dashboard-details { font-size: 0.85em; color: #7f8c8d; margin-top: 5px; text-align: right; }
     </style>
 </head>
 <body>
@@ -86,17 +90,24 @@
         </div>
 
         <button class="btn" id="start-btn" onclick="startNewQuiz()">学習を開始する</button>
-        <button class="btn btn-secondary" style="margin-top:15px;" onclick="openListMode()">🔍 問題一覧・キーワード検索</button>
+        <button class="btn btn-secondary" style="margin-top:15px;" onclick="openDashboardMode()">📊 ジャンル別成績ダッシュボード</button>
+        <button class="btn btn-secondary" style="margin-top:10px;" onclick="openListMode()">🔍 問題一覧・キーワード検索</button>
         <span class="reset-link" onclick="resetStats()">学習履歴（成績）をリセットする</span>
+    </div>
+
+    <!-- ダッシュボード画面 -->
+    <div class="container hidden" id="dashboard-container">
+        <h1>成績ダッシュボード</h1>
+        <button class="btn btn-secondary" style="margin-bottom:20px;" onclick="closeDashboardMode()">トップに戻る</button>
+        <p style="text-align:center; font-size:0.9em; color:#555;">各問題における「直近の回答が正解」の割合（定着度）を表示しています。</p>
+        <div id="dashboard-content"></div>
     </div>
 
     <!-- 検索・一覧画面 -->
     <div class="container hidden" id="list-container">
         <h1>問題一覧・キーワード検索</h1>
         <button class="btn btn-secondary" style="margin-bottom:20px;" onclick="closeListMode()">トップに戻る</button>
-        
         <input type="text" id="search-input" placeholder="検索キーワードを入力（例: Unity Catalog, JOIN）" onkeyup="filterList()">
-        
         <div id="search-results"></div>
     </div>
 
@@ -158,7 +169,7 @@
             let htmlText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
             
             for (const [keyword, url] of Object.entries(officialLinks)) {
-                const regex = new RegExp(keyword, "gi"); // 大文字小文字を区別しない
+                const regex = new RegExp(keyword, "gi");
                 htmlText = htmlText.replace(regex, `<a href="${url}" target="_blank" class="doc-link">$&</a>`);
             }
             return htmlText;
@@ -173,7 +184,9 @@
         const startContainer = document.getElementById('start-container');
         const quizContainer = document.getElementById('quiz-container');
         const resultContainer = document.getElementById('result-container');
-        const listContainer = document.getElementById('list-container'); // 【追加】
+        const listContainer = document.getElementById('list-container'); 
+        const dashboardContainer = document.getElementById('dashboard-container'); // 【追加】
+        const dashboardContent = document.getElementById('dashboard-content');     // 【追加】
         
         const questionText = document.getElementById('question-text');
         const optionsContainer = document.getElementById('options-container');
@@ -189,9 +202,8 @@
         const filterSelect = document.getElementById('filter-select');
         const countSelect = document.getElementById('question-count-select');
         const startBtn = document.getElementById('start-btn');
-        
-        const searchInput = document.getElementById('search-input'); // 【追加】
-        const searchResults = document.getElementById('search-results'); // 【追加】
+        const searchInput = document.getElementById('search-input'); 
+        const searchResults = document.getElementById('search-results'); 
 
         function initApp() {
             const loadedStats = localStorage.getItem('db_quiz_stats');
@@ -310,7 +322,7 @@
             if (!stat || stat.attempts === 0) {
                 statBadge.textContent = '初回挑戦';
             } else {
-                const mark = stat.lastStatus === 'correct' ? '⭕️' : '❌';
+                const mark = stat.lastStatus === 'correct' ? '⭕️️' : '❌';
                 statBadge.textContent = `過去: ${stat.attempts}回中 ${stat.corrects}回正解 (前回: ${mark})`;
                 if (stat.lastStatus === 'incorrect') statBadge.classList.add('incorrect-last');
             }
@@ -479,13 +491,97 @@
         }
 
         // ==========================================
-        // 【追加】一覧・検索機能用のスクリプト
+        // 【追加】ダッシュボード関連のスクリプト
         // ==========================================
+        function openDashboardMode() {
+            startContainer.classList.add('hidden');
+            dashboardContainer.classList.remove('hidden');
+            renderDashboard();
+        }
+
+        function closeDashboardMode() {
+            dashboardContainer.classList.add('hidden');
+            startContainer.classList.remove('hidden');
+            updateCountOptions();
+        }
+
+        function renderDashboard() {
+            const statsByCategory = {};
+            
+            // ジャンルごとの総数と直近正解（定着）数を計算
+            quizData.forEach((q, idx) => {
+                const cat = q.category || '未分類';
+                if (!statsByCategory[cat]) {
+                    statsByCategory[cat] = { total: 0, mastered: 0, attempted: 0 };
+                }
+                statsByCategory[cat].total++;
+                
+                const stat = userStats[idx];
+                if (stat && stat.attempts > 0) {
+                    statsByCategory[cat].attempted++;
+                    // 「直近が正解」であればマスター（定着）したとみなす
+                    if (stat.lastStatus === 'correct') {
+                        statsByCategory[cat].mastered++;
+                    }
+                }
+            });
+
+            dashboardContent.innerHTML = '';
+            
+            let totalQ = 0, totalMastered = 0, totalAttempted = 0;
+
+            // 各ジャンルのバーを描画
+            for (const [cat, data] of Object.entries(statsByCategory)) {
+                totalQ += data.total;
+                totalMastered += data.mastered;
+                totalAttempted += data.attempted;
+
+                const pct = data.total === 0 ? 0 : Math.round((data.mastered / data.total) * 100);
+                
+                const div = document.createElement('div');
+                div.className = 'dashboard-item';
+                div.innerHTML = `
+                    <div class="dashboard-header">
+                        <span>${cat}</span>
+                        <span>${pct}%</span>
+                    </div>
+                    <div class="progress-bar-bg">
+                        <div class="progress-bar-fill" style="width: ${pct}%;"></div>
+                    </div>
+                    <div class="dashboard-details">
+                        定着度（直近正解）: ${data.mastered} / ${data.total} 問
+                    </div>
+                `;
+                dashboardContent.appendChild(div);
+            }
+
+            // 一番上に「全体成績」を挿入
+            const overallPct = totalQ === 0 ? 0 : Math.round((totalMastered / totalQ) * 100);
+            const overallDiv = document.createElement('div');
+            overallDiv.className = 'dashboard-item';
+            overallDiv.style.borderBottom = '2px solid #ecf0f1';
+            overallDiv.style.paddingBottom = '15px';
+            overallDiv.style.marginBottom = '25px';
+            overallDiv.innerHTML = `
+                <div class="dashboard-header" style="font-size: 1.2em; color: #3498db;">
+                    <span>🌟 全体定着度</span>
+                    <span>${overallPct}%</span>
+                </div>
+                <div class="progress-bar-bg" style="height: 25px;">
+                    <div class="progress-bar-fill" style="background: #3498db; width: ${overallPct}%;"></div>
+                </div>
+                <div class="dashboard-details" style="font-size: 0.9em;">
+                    学習済み: ${totalAttempted}問 | 直近正解: ${totalMastered} / 全${totalQ}問
+                </div>
+            `;
+            dashboardContent.insertBefore(overallDiv, dashboardContent.firstChild);
+        }
+
         function openListMode() {
             startContainer.classList.add('hidden');
             listContainer.classList.remove('hidden');
-            searchInput.value = ''; // 検索窓をリセット
-            filterList(); // 初期状態（全件表示）で描画
+            searchInput.value = ''; 
+            filterList(); 
         }
 
         function closeListMode() {
@@ -499,7 +595,6 @@
             let count = 0;
 
             quizData.forEach((q) => {
-                // 問題文、選択肢全体、解説文、カテゴリ を結合して検索対象にする
                 const searchableText = (
                     (q.category || '') + " " + 
                     q.question + " " + 
@@ -507,7 +602,6 @@
                     q.explanation
                 ).toLowerCase();
 
-                // 検索キーワードが含まれていれば表示（空ならすべて表示）
                 if (query === '' || searchableText.includes(query)) {
                     count++;
                     const div = document.createElement('div');
@@ -525,7 +619,6 @@
                 }
             });
 
-            // ヒット件数の表示コントロール
             if (count === 0) {
                 searchResults.innerHTML = '<p style="text-align:center; color:#7f8c8d; margin-top:30px;">該当する問題が見つかりません。</p>';
             } else if (query !== '') {
