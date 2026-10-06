@@ -13,6 +13,9 @@
         .form-group label { display: block; font-weight: bold; margin-bottom: 8px; color: #2c3e50; }
         select { width: 100%; padding: 12px; font-size: 1.1em; border-radius: 5px; border: 1px solid #bdc3c7; background: #fff; }
         
+        /* コース選択用の特別スタイル */
+        #course-select { background: #e8f4f8; border: 2px solid #3498db; color: #2980b9; font-weight: bold; }
+
         #search-input { width: 100%; padding: 15px; font-size: 1.1em; border-radius: 5px; border: 1px solid #bdc3c7; margin-bottom: 20px; box-sizing: border-box; }
         #search-input:focus { border-color: #3498db; outline: none; box-shadow: 0 0 5px rgba(52, 152, 219, 0.5); }
 
@@ -60,7 +63,6 @@
         .progress-bar-fill { background: #27ae60; height: 100%; transition: width 0.5s ease; }
         .dashboard-details { font-size: 0.85em; color: #7f8c8d; margin-top: 5px; text-align: right; }
         
-        /* データ引き継ぎ用 */
         textarea.data-area { width: 100%; padding: 10px; font-family: monospace; border: 1px solid #bdc3c7; border-radius: 4px; margin-bottom: 10px; font-size: 0.9em; box-sizing: border-box; resize: vertical; }
     </style>
 </head>
@@ -70,10 +72,22 @@
     <div class="container" id="start-container">
         <h1>Databricks データエンジニア 問題集</h1>
         
+        <!-- 【追加】コース選択 -->
+        <div class="form-group">
+            <label for="course-select">📚 学習コース</label>
+            <select id="course-select" onchange="changeCourse()">
+                <option value="normal">通常コース（分野別・全160問）</option>
+                <option value="exam1">🎯 演習問題 第1回（55問）</option>
+                <option value="exam2">🎯 演習問題 第2回（55問）</option>
+                <option value="exam3">🎯 演習問題 第3回（55問）</option>
+                <option value="exam4">🎯 演習問題 第4回（55問）</option>
+            </select>
+        </div>
+
         <div class="form-group">
             <label for="category-select">ジャンル（分野）</label>
             <select id="category-select" onchange="updateCountOptions()">
-                <option value="all">すべてのジャンル</option>
+                <!-- JSで動的に追加されます -->
             </select>
         </div>
 
@@ -92,15 +106,15 @@
         </div>
 
         <button class="btn" id="start-btn" onclick="startNewQuiz()">学習を開始する</button>
-        <button class="btn btn-secondary" style="margin-top:15px;" onclick="openDashboardMode()">📊 ジャンル別成績ダッシュボード</button>
-        <button class="btn btn-secondary" style="margin-top:10px;" onclick="openListMode()">🔍 問題一覧・キーワード検索</button>
+        <button class="btn btn-secondary" style="margin-top:15px;" onclick="openDashboardMode()">📊 現在のコースの成績ダッシュボード</button>
+        <button class="btn btn-secondary" style="margin-top:10px;" onclick="openListMode()">🔍 現在のコースの問題一覧・検索</button>
         <button class="btn btn-secondary" style="margin-top:10px;" onclick="openDataMode()">💾 学習データの引き継ぎ</button>
         <span class="reset-link" onclick="resetStats()">学習履歴（成績）をリセットする</span>
     </div>
 
     <!-- ダッシュボード画面 -->
     <div class="container hidden" id="dashboard-container">
-        <h1>成績ダッシュボード</h1>
+        <h1 id="dashboard-title">成績ダッシュボード</h1>
         <button class="btn btn-secondary" style="margin-bottom:20px;" onclick="closeDashboardMode()">トップに戻る</button>
         <p style="text-align:center; font-size:0.9em; color:#555;">各問題における「直近の回答が正解」の割合（定着度）を表示しています。</p>
         <div id="dashboard-content"></div>
@@ -108,7 +122,7 @@
 
     <!-- 検索・一覧画面 -->
     <div class="container hidden" id="list-container">
-        <h1>問題一覧・キーワード検索</h1>
+        <h1 id="list-title">問題一覧・キーワード検索</h1>
         <button class="btn btn-secondary" style="margin-bottom:20px;" onclick="closeListMode()">トップに戻る</button>
         <input type="text" id="search-input" placeholder="検索キーワードを入力（例: Unity Catalog, JOIN）" onkeyup="filterList()">
         <div id="search-results"></div>
@@ -121,14 +135,14 @@
         
         <div class="list-item">
             <h4 style="color: #2980b9;">📤 データのエクスポート（書き出し）</h4>
-            <p style="font-size: 0.9em; color: #555;">現在の学習履歴（正誤データ）を別の端末に移すためのコードです。以下の文字列をコピーしてください。</p>
+            <p style="font-size: 0.9em; color: #555;">現在のすべての学習履歴（正誤データ）を別の端末に移すためのコードです。</p>
             <textarea id="export-textarea" class="data-area" rows="4" readonly style="background: #ecf0f1;"></textarea>
             <button class="btn" onclick="copyExportData()">コードをコピーする</button>
         </div>
 
         <div class="list-item" style="margin-top: 20px;">
             <h4 style="color: #27ae60;">📥 データのインポート（読み込み）</h4>
-            <p style="font-size: 0.9em; color: #555;">別の端末でコピーしたコードを下の枠に貼り付けて「読み込む」を押すと、履歴が上書き復元されます。</p>
+            <p style="font-size: 0.9em; color: #555;">別の端末でコピーしたコードを下の枠に貼り付けてください。</p>
             <textarea id="import-textarea" class="data-area" rows="4" placeholder="ここにセーブコードを貼り付けてください..."></textarea>
             <button class="btn btn-success" onclick="importData()">データを読み込む（上書き）</button>
         </div>
@@ -190,7 +204,6 @@
         function addLinksToText(text) {
             if (!text) return "";
             let htmlText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            
             for (const [keyword, url] of Object.entries(officialLinks)) {
                 const regex = new RegExp(keyword, "gi");
                 htmlText = htmlText.replace(regex, `<a href="${url}" target="_blank" class="doc-link">$&</a>`);
@@ -209,7 +222,7 @@
         const resultContainer = document.getElementById('result-container');
         const listContainer = document.getElementById('list-container'); 
         const dashboardContainer = document.getElementById('dashboard-container'); 
-        const dataContainer = document.getElementById('data-container'); // 【追加】
+        const dataContainer = document.getElementById('data-container'); 
         const dashboardContent = document.getElementById('dashboard-content');     
         
         const questionText = document.getElementById('question-text');
@@ -222,6 +235,7 @@
         const statBadge = document.getElementById('stat-badge');
         const categoryBadge = document.getElementById('category-badge');
         
+        const courseSelect = document.getElementById('course-select'); // 【追加】
         const categorySelect = document.getElementById('category-select');
         const filterSelect = document.getElementById('filter-select');
         const countSelect = document.getElementById('question-count-select');
@@ -233,15 +247,8 @@
             const loadedStats = localStorage.getItem('db_quiz_stats');
             if (loadedStats) userStats = JSON.parse(loadedStats);
 
-            const categories = [...new Set(quizData.map(q => q.category || '未分類'))];
-            categories.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c;
-                opt.textContent = c;
-                categorySelect.appendChild(opt);
-            });
-
-            updateCountOptions();
+            // 初期化時にコースに基づくジャンルをロード
+            changeCourse();
 
             const savedSessionIndices = localStorage.getItem('db_quiz_session_indices');
             const savedSessionCurrent = localStorage.getItem('db_quiz_session_current');
@@ -263,7 +270,27 @@
             }
         }
 
+        // 【追加】コースが変更されたときの処理（ジャンル一覧の再生成）
+        function changeCourse() {
+            const selectedCourse = courseSelect.value;
+            categorySelect.innerHTML = '<option value="all">すべてのジャンル</option>';
+            
+            // 選択されたコースに属する問題のカテゴリのみを抽出
+            const categories = [...new Set(quizData.filter(q => (q.course || 'normal') === selectedCourse).map(q => q.category || '未分類'))];
+            
+            categories.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.textContent = c;
+                categorySelect.appendChild(opt);
+            });
+
+            // 演習問題の場合は「すべてのジャンル」で固定してしまうのもアリですが、今回は選択可能にしています
+            updateCountOptions();
+        }
+
         function getFilteredIndices() {
+            const selectedCourse = courseSelect.value; // 【追加】
             const filter = filterSelect.value;
             const categoryFilter = categorySelect.value;
             let indices = [];
@@ -271,11 +298,13 @@
             for (let i = 0; i < quizData.length; i++) {
                 const q = quizData[i];
                 const stat = userStats[i];
-                const qCategory = q.category || '未分類';
+                
+                // 【追加】コースによる完全隔離
+                const qCourse = q.course || 'normal';
+                if (qCourse !== selectedCourse) continue; 
 
-                if (categoryFilter !== 'all' && qCategory !== categoryFilter) {
-                    continue; 
-                }
+                const qCategory = q.category || '未分類';
+                if (categoryFilter !== 'all' && qCategory !== categoryFilter) continue; 
 
                 if (filter === 'all') {
                     indices.push(i);
@@ -515,11 +544,16 @@
         }
 
         // ==========================================
-        // ダッシュボード
+        // ダッシュボード（コース隔離対応）
         // ==========================================
         function openDashboardMode() {
             startContainer.classList.add('hidden');
             dashboardContainer.classList.remove('hidden');
+            
+            // 現在選択しているコース名を取得してタイトルに反映
+            const courseName = courseSelect.options[courseSelect.selectedIndex].text;
+            document.getElementById('dashboard-title').textContent = `📊 ${courseName} の成績`;
+            
             renderDashboard();
         }
 
@@ -530,9 +564,14 @@
         }
 
         function renderDashboard() {
+            const selectedCourse = courseSelect.value;
             const statsByCategory = {};
             
             quizData.forEach((q, idx) => {
+                // 選択中のコースの問題だけを集計
+                const qCourse = q.course || 'normal';
+                if (qCourse !== selectedCourse) return;
+
                 const cat = q.category || '未分類';
                 if (!statsByCategory[cat]) {
                     statsByCategory[cat] = { total: 0, mastered: 0, attempted: 0 };
@@ -598,11 +637,15 @@
         }
 
         // ==========================================
-        // 一覧・検索機能
+        // 一覧・検索機能（コース隔離対応）
         // ==========================================
         function openListMode() {
             startContainer.classList.add('hidden');
             listContainer.classList.remove('hidden');
+            
+            const courseName = courseSelect.options[courseSelect.selectedIndex].text;
+            document.getElementById('list-title').textContent = `🔍 ${courseName} 一覧・検索`;
+            
             searchInput.value = ''; 
             filterList(); 
         }
@@ -613,11 +656,16 @@
         }
 
         function filterList() {
+            const selectedCourse = courseSelect.value;
             const query = searchInput.value.toLowerCase().trim();
             searchResults.innerHTML = '';
             let count = 0;
 
             quizData.forEach((q) => {
+                // 選択中のコースの問題だけを検索対象にする
+                const qCourse = q.course || 'normal';
+                if (qCourse !== selectedCourse) return;
+
                 const searchableText = (
                     (q.category || '') + " " + 
                     q.question + " " + 
@@ -655,15 +703,13 @@
         }
 
         // ==========================================
-        // 【追加】データ引き継ぎ機能（エクスポート / インポート）
+        // データ引き継ぎ機能
         // ==========================================
         function openDataMode() {
             startContainer.classList.add('hidden');
             dataContainer.classList.remove('hidden');
             
-            // 現在の履歴をエクスポート用の文字列に変換（Base64エンコード）して枠に表示
             const statsString = localStorage.getItem('db_quiz_stats') || "{}";
-            // 日本語なども安全にエンコード・コピーできるように処理
             const encoded = btoa(encodeURIComponent(statsString)); 
             document.getElementById('export-textarea').value = encoded;
             
@@ -677,7 +723,7 @@
 
         function copyExportData() {
             const exportText = document.getElementById('export-textarea');
-            if (!exportText.value || exportText.value === "JTdCJTdE") { // "{}" のBase64
+            if (!exportText.value || exportText.value === "JTdCJTdE") { 
                 alert("学習履歴がまだありません。");
                 return;
             }
@@ -694,18 +740,16 @@
             }
 
             try {
-                // 文字列をデコードしてJSONとして解析
                 const decoded = decodeURIComponent(atob(importText));
                 const parsedStats = JSON.parse(decoded);
 
-                // 形式が正しいか簡易チェック
                 if (typeof parsedStats === 'object' && parsedStats !== null) {
                     if (confirm('現在の学習履歴が上書きされます。本当によろしいですか？')) {
                         localStorage.setItem('db_quiz_stats', JSON.stringify(parsedStats));
-                        userStats = parsedStats; // 現在のメモリ上の履歴を更新
+                        userStats = parsedStats; 
                         alert('データの読み込みに成功しました！学習履歴が復元されました。');
                         closeDataMode();
-                        updateCountOptions(); // 新しい履歴に基づいて問題数を再計算
+                        updateCountOptions(); 
                     }
                 } else {
                     throw new Error('Invalid format');
