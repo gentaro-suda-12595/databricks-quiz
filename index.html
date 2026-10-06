@@ -54,12 +54,14 @@
         .list-item .correct-answer { color: #27ae60; font-weight: bold; margin-bottom: 15px; font-size: 1.05em; }
         .list-item .explanation-text { font-size: 0.95em; color: #555; white-space: pre-wrap; background: #e8f4f8; padding: 12px; border-radius: 4px; border-left: 4px solid #3498db; }
 
-        /* ダッシュボード用スタイル */
         .dashboard-item { margin-bottom: 20px; }
         .dashboard-header { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 5px; color: #2c3e50; }
         .progress-bar-bg { background: #ecf0f1; border-radius: 8px; height: 20px; width: 100%; overflow: hidden; position: relative; }
         .progress-bar-fill { background: #27ae60; height: 100%; transition: width 0.5s ease; }
         .dashboard-details { font-size: 0.85em; color: #7f8c8d; margin-top: 5px; text-align: right; }
+        
+        /* データ引き継ぎ用 */
+        textarea.data-area { width: 100%; padding: 10px; font-family: monospace; border: 1px solid #bdc3c7; border-radius: 4px; margin-bottom: 10px; font-size: 0.9em; box-sizing: border-box; resize: vertical; }
     </style>
 </head>
 <body>
@@ -92,6 +94,7 @@
         <button class="btn" id="start-btn" onclick="startNewQuiz()">学習を開始する</button>
         <button class="btn btn-secondary" style="margin-top:15px;" onclick="openDashboardMode()">📊 ジャンル別成績ダッシュボード</button>
         <button class="btn btn-secondary" style="margin-top:10px;" onclick="openListMode()">🔍 問題一覧・キーワード検索</button>
+        <button class="btn btn-secondary" style="margin-top:10px;" onclick="openDataMode()">💾 学習データの引き継ぎ</button>
         <span class="reset-link" onclick="resetStats()">学習履歴（成績）をリセットする</span>
     </div>
 
@@ -109,6 +112,26 @@
         <button class="btn btn-secondary" style="margin-bottom:20px;" onclick="closeListMode()">トップに戻る</button>
         <input type="text" id="search-input" placeholder="検索キーワードを入力（例: Unity Catalog, JOIN）" onkeyup="filterList()">
         <div id="search-results"></div>
+    </div>
+    
+    <!-- データ引き継ぎ画面 -->
+    <div class="container hidden" id="data-container">
+        <h1>学習データの引き継ぎ</h1>
+        <button class="btn btn-secondary" style="margin-bottom:20px;" onclick="closeDataMode()">トップに戻る</button>
+        
+        <div class="list-item">
+            <h4 style="color: #2980b9;">📤 データのエクスポート（書き出し）</h4>
+            <p style="font-size: 0.9em; color: #555;">現在の学習履歴（正誤データ）を別の端末に移すためのコードです。以下の文字列をコピーしてください。</p>
+            <textarea id="export-textarea" class="data-area" rows="4" readonly style="background: #ecf0f1;"></textarea>
+            <button class="btn" onclick="copyExportData()">コードをコピーする</button>
+        </div>
+
+        <div class="list-item" style="margin-top: 20px;">
+            <h4 style="color: #27ae60;">📥 データのインポート（読み込み）</h4>
+            <p style="font-size: 0.9em; color: #555;">別の端末でコピーしたコードを下の枠に貼り付けて「読み込む」を押すと、履歴が上書き復元されます。</p>
+            <textarea id="import-textarea" class="data-area" rows="4" placeholder="ここにセーブコードを貼り付けてください..."></textarea>
+            <button class="btn btn-success" onclick="importData()">データを読み込む（上書き）</button>
+        </div>
     </div>
 
     <!-- クイズ画面 -->
@@ -185,8 +208,9 @@
         const quizContainer = document.getElementById('quiz-container');
         const resultContainer = document.getElementById('result-container');
         const listContainer = document.getElementById('list-container'); 
-        const dashboardContainer = document.getElementById('dashboard-container'); // 【追加】
-        const dashboardContent = document.getElementById('dashboard-content');     // 【追加】
+        const dashboardContainer = document.getElementById('dashboard-container'); 
+        const dataContainer = document.getElementById('data-container'); // 【追加】
+        const dashboardContent = document.getElementById('dashboard-content');     
         
         const questionText = document.getElementById('question-text');
         const optionsContainer = document.getElementById('options-container');
@@ -322,7 +346,7 @@
             if (!stat || stat.attempts === 0) {
                 statBadge.textContent = '初回挑戦';
             } else {
-                const mark = stat.lastStatus === 'correct' ? '⭕️️' : '❌';
+                const mark = stat.lastStatus === 'correct' ? '⭕' : '❌';
                 statBadge.textContent = `過去: ${stat.attempts}回中 ${stat.corrects}回正解 (前回: ${mark})`;
                 if (stat.lastStatus === 'incorrect') statBadge.classList.add('incorrect-last');
             }
@@ -491,7 +515,7 @@
         }
 
         // ==========================================
-        // 【追加】ダッシュボード関連のスクリプト
+        // ダッシュボード
         // ==========================================
         function openDashboardMode() {
             startContainer.classList.add('hidden');
@@ -508,7 +532,6 @@
         function renderDashboard() {
             const statsByCategory = {};
             
-            // ジャンルごとの総数と直近正解（定着）数を計算
             quizData.forEach((q, idx) => {
                 const cat = q.category || '未分類';
                 if (!statsByCategory[cat]) {
@@ -519,7 +542,6 @@
                 const stat = userStats[idx];
                 if (stat && stat.attempts > 0) {
                     statsByCategory[cat].attempted++;
-                    // 「直近が正解」であればマスター（定着）したとみなす
                     if (stat.lastStatus === 'correct') {
                         statsByCategory[cat].mastered++;
                     }
@@ -530,7 +552,6 @@
             
             let totalQ = 0, totalMastered = 0, totalAttempted = 0;
 
-            // 各ジャンルのバーを描画
             for (const [cat, data] of Object.entries(statsByCategory)) {
                 totalQ += data.total;
                 totalMastered += data.mastered;
@@ -555,7 +576,6 @@
                 dashboardContent.appendChild(div);
             }
 
-            // 一番上に「全体成績」を挿入
             const overallPct = totalQ === 0 ? 0 : Math.round((totalMastered / totalQ) * 100);
             const overallDiv = document.createElement('div');
             overallDiv.className = 'dashboard-item';
@@ -577,6 +597,9 @@
             dashboardContent.insertBefore(overallDiv, dashboardContent.firstChild);
         }
 
+        // ==========================================
+        // 一覧・検索機能
+        // ==========================================
         function openListMode() {
             startContainer.classList.add('hidden');
             listContainer.classList.remove('hidden');
@@ -628,6 +651,67 @@
                 summary.style.color = '#2980b9';
                 summary.textContent = `🔍 ${count} 件ヒットしました`;
                 searchResults.insertBefore(summary, searchResults.firstChild);
+            }
+        }
+
+        // ==========================================
+        // 【追加】データ引き継ぎ機能（エクスポート / インポート）
+        // ==========================================
+        function openDataMode() {
+            startContainer.classList.add('hidden');
+            dataContainer.classList.remove('hidden');
+            
+            // 現在の履歴をエクスポート用の文字列に変換（Base64エンコード）して枠に表示
+            const statsString = localStorage.getItem('db_quiz_stats') || "{}";
+            // 日本語なども安全にエンコード・コピーできるように処理
+            const encoded = btoa(encodeURIComponent(statsString)); 
+            document.getElementById('export-textarea').value = encoded;
+            
+            document.getElementById('import-textarea').value = '';
+        }
+
+        function closeDataMode() {
+            dataContainer.classList.add('hidden');
+            startContainer.classList.remove('hidden');
+        }
+
+        function copyExportData() {
+            const exportText = document.getElementById('export-textarea');
+            if (!exportText.value || exportText.value === "JTdCJTdE") { // "{}" のBase64
+                alert("学習履歴がまだありません。");
+                return;
+            }
+            exportText.select();
+            document.execCommand('copy');
+            alert('セーブコードをコピーしました！\n別の端末やブラウザの「データのインポート」欄に貼り付けてください。');
+        }
+
+        function importData() {
+            const importText = document.getElementById('import-textarea').value.trim();
+            if (!importText) {
+                alert('コードが入力されていません。');
+                return;
+            }
+
+            try {
+                // 文字列をデコードしてJSONとして解析
+                const decoded = decodeURIComponent(atob(importText));
+                const parsedStats = JSON.parse(decoded);
+
+                // 形式が正しいか簡易チェック
+                if (typeof parsedStats === 'object' && parsedStats !== null) {
+                    if (confirm('現在の学習履歴が上書きされます。本当によろしいですか？')) {
+                        localStorage.setItem('db_quiz_stats', JSON.stringify(parsedStats));
+                        userStats = parsedStats; // 現在のメモリ上の履歴を更新
+                        alert('データの読み込みに成功しました！学習履歴が復元されました。');
+                        closeDataMode();
+                        updateCountOptions(); // 新しい履歴に基づいて問題数を再計算
+                    }
+                } else {
+                    throw new Error('Invalid format');
+                }
+            } catch (e) {
+                alert('データの形式が正しくありません。コピーしたテキストの一部が欠けていないか確認してください。');
             }
         }
 
