@@ -3397,5 +3397,1441 @@ const quizData = [
         ],
         answerIndex: 2,
         explanation: "解答：(C)\n\n解説：`dropna(subset=[...])` は、指定した列リストの中にNULL値が含まれている「行」を削除するコマンドです。デフォルトの評価モードは `how='any'` であるため、指定したいずれかの列（order_id または payment_method）にNULLが1つでもあれば、その行全体が削除されます。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 1:\nデータエンジニアがDatabricks SQLパイプラインで受信トランザクションデータを検証しています。一部のレコードの数値フィールドに予期しない記号が含まれています。エンジニアは次のクエリを実行します。\n\nSELECT INT(\"100$\")\n\nこのクエリの結果を最も適切に表しているのは、次のうちどれですか？",
+        options: [
+            "(A) NULL",
+            "(B) 100",
+            "(C) エラーが発生しました",
+            "(D) 100ドル"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：デフォルトでは、INT (CAST関数と同等) 対象の数値型に含まれない文字 (「100$」の末尾の $ 記号など) を含む文字列に対して関数を使用すると、クエリはすぐに失敗し、実行時例外[CAST_INVALID_INPUT]がスローされます。エラーを回避してNULLを返したい場合は TRY_CAST() を使用します。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 2:\n「ワークスペースとクラウド全体にわたるメタデータとアクセス制御を管理する、集中型のガバナンスレイヤーです。3階層の名前空間（カタログ、スキーマ、テーブル）を使用してデータを整理し、列レベルまでのきめ細かな権限設定を可能にするとともに、コンプライアンスのための監査ログとデータリネージも提供します。」\n上記の記述で説明されているのは、次のうちどれですか？",
+        options: [
+            "(A) Databricks SQL",
+            "(B) Unity Catalog (Unityカタログ)",
+            "(C) Delta Lake (デルタレイク)",
+            "(D) Hive Metastore (Hiveメタストア)"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：この説明はDatabricks Unity Catalogの正確なアーキテクチャ定義とコア機能セットについて説明しています。複数のワークスペースをまたいだ集中型ガバナンス、3階層の名前空間、列/行レベルのセキュリティ、データリネージの自動追跡などを提供します。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 3:\nデータエンジニアは、毎晩午前2時に売上データを集計するLakeflowジョブを実行する必要があります。このジョブはリアルタイム処理を必要とせず、毎日決まった時間にのみ実行される必要があります。\nデータエンジニアはこの作業にどのようなトリガー構成を使用すべきでしょうか？",
+        options: [
+            "(A) テーブル更新トリガー",
+            "(B) スケジュールされたトリガー (Scheduled Trigger)",
+            "(C) 連続トリガー",
+            "(D) ファイル到着トリガー"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：ジョブを「毎晩午前2時」などのあらかじめ決められた固定間隔または時刻に実行する必要がある場合は、cron式等を使用して実行を制御する「スケジュールされたトリガー」を使用します。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 4:\n財務分析チームは、Unity Catalog の Delta Lake テーブル「transactions」を管理しており、そのテーブルには id, amount, region, account_manager という列があります。彼らはこのテーブルに行フィルタリングを適用して、以下のことを実現したいと考えています。\n\n・財務チームのメンバーはすべての取引を見ることができますが、他のユーザーは「米国(US)」地域の記録のみを閲覧できます。\n\n以下のユーザー定義関数のうち、これを実現するのに役立つものはどれですか？",
+        options: [
+            "(A) CREATE FUNCTION us_filter(region STRING)\n   RETURN CASE WHEN IS_ACCOUNT_GROUP_MEMBER('finance_team') THEN true ELSE region END",
+            "(B) CREATE FUNCTION us_filter(region STRING)\n   RETURN IF(IS_ACCOUNT_GROUP_MEMBER('finance_team'), region='US', true);",
+            "(C) CREATE FUNCTION us_filter(region STRING)\n   RETURN CASE WHEN IS_ACCOUNT_GROUP_MEMBER( 'finance_team' ) THEN region='US' ELSE true END",
+            "(D) CREATE FUNCTION us_filter(region STRING)\n   RETURN IF(IS_ACCOUNT_GROUP_MEMBER('finance_team'), true, region='US');"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：行レベルフィルタでは、関数が「true」を返した行のみがユーザーに表示されます。IS_ACCOUNT_GROUP_MEMBER('finance_team') を使用してユーザーが所属しているか確認し、属していれば `true` (全件表示) を返し、属していなければ `region='US'` が一致するかどうかの結果（米国の取引のみ true）を返すロジックが正解です。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 5:\n顧客データを完全に保存しているのは、次のうちどの場所ですか？",
+        options: [
+            "(A) コントロールプレーン (Control Plane)",
+            "(B) Databricksアカウント",
+            "(C) 顧客のクラウドアカウント (データプレーン)",
+            "(D) Databricksが管理するクラスター"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：Databricks Lakehouseのアーキテクチャでは、実際のデータファイル（Parquetファイル等）を保存するストレージアカウント（S3, ADLS, GCSなど）はすべて「顧客のクラウドアカウント（データプレーン）」内に存在し、コントロールプレーン側には保存されません。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 6:\nあるデータエンジニアが、完了までに2時間以上かかる複数のタスクを含むジョブを担当している。前回の実行時、最後のタスクが予期せず失敗した。\nデータエンジニアは、実行時間を最小限に抑えながらこのジョブ実行を完了するために、次のうちどの操作を実行できますか？",
+        options: [
+            "(A) 失敗した実行記録はそのままにしておき、単にその仕事のために新しい実行を開始すればよい。",
+            "(B) ジョブ実行を修復(Repair)し、失敗したタスクとその下流のみを再実行させることができます。",
+            "(C) 失敗した実行を削除し、ジョブの新しい実行を開始する必要があります。",
+            "(D) エラーが発生した場合に自動的に実行を再試行する本番モードでジョブを実行できます。"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：Databricks Jobsの「Repair and Run（修復して実行）」機能を使用すると、成功済みのタスクをスキップして、失敗したタスクおよびその下流のタスクのみを再実行できます。これにより、ジョブ全体の復旧時間を大幅に短縮できます。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 7:\nデータエンジニアリングチームは、Apache KafkaトピックからDatabricksにクリックストリームイベントを取り込む必要があります。システムは毎秒10,000件のイベントを受信し、データは60秒未満の遅延で処理されなければなりません。\nどのデータ取り込み方法が最も適切でしょうか？",
+        options: [
+            "(A) KafkaからDatabricksへの Spark Structured Streaming (構造化ストリーミング)",
+            "(B) Lakeflowマネージドコネクタを使用したKafkaの増分データ取り込み",
+            "(C) Kafkaから24時間ごとにテーブル全体を再読み込みします。",
+            "(D) 1分ごとにスケジュールされたSparkジョブを使用してバッチ取り込みを実行します。"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：60秒未満の低遅延かつ高スループット（毎秒10,000イベント）でKafkaからストリーム処理を行うには、Kafka用のネイティブコネクタを備えた Spark Structured Streaming を使用するのが最適です。1分ごとのバッチスケジュールでは起動オーバーヘッドが重なり、レイテンシ要求を満たせなくなります。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 8:\n本番環境のジョブには、以下のどのクラスタタイプを使用することをお勧めしますか？",
+        options: [
+            "(A) プールクラスター",
+            "(B) オンプレミスクラスター",
+            "(C) ジョブクラスター (Job Compute)",
+            "(D) 汎用クラスター (All-Purpose Compute)"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：自動化された本番ジョブの実行には「ジョブクラスター（Job Compute）」を使用することがベストプラクティスです。ジョブの開始時に専用のクリーンなクラスターが起動し、終了時に自動で破棄されるため、他のジョブとの干渉がなくなり、コスト（DBU単価）も汎用クラスターより安価になります。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 9:\nデータアナリストは、teachers_df と courses_df という2つのPySparkデータフレーム（どちらにも teacher_id 列が含まれる）を扱っています。彼らは、「どのコースも担当していない教師」のデータフレームを必要としています。\nこの要件を満たすPySparkコードはどれですか？",
+        options: [
+            "(A) joined_df = teachers_df.join(courses_df, \"teacher_id\", \"left_semi\")",
+            "(B) joined_df = teachers_df.join(courses_df, \"teacher_id\", \"left\")",
+            "(C) joined_df = teachers_df.join(courses_df, \"teacher_id\", \"left_anti\")",
+            "(D) joined_df = teachers_df.join(courses_df, \"teacher_id\", \"full\")"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：左側のデータフレーム（teachers_df）に存在し、右側のデータフレーム（courses_df）には「存在しない（一致しない）」レコードだけを抽出したい場合は、アンチジョインである `left_anti` を使用します。これにより、コーステーブルに登録がない教師のみが残ります。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 10:\nデータエンジニアは、入力データファイルを増分的にロードするために、Auto Loader を使用するか、COPY INTO コマンドを使用するかを判断する必要があります。\nデータエンジニアは、以下のどのシナリオで COPY INTO コマンドよりも Auto Loader を使用すべきでしょうか？",
+        options: [
+            "(A) 数千個程度の少数のファイルを取り込む場合",
+            "(B) 今後、数百万個以上のファイルを取り込む予定である場合",
+            "(C) 再アップロードされたファイルのサブセットを読み込む場合",
+            "(D) データスキーマが頻繁に変更されない場合"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：数千個程度の小規模なファイルロードには COPY INTO が手軽で有効ですが、ファイル数が非常に多く数百万を超えるような大規模な増分ロード、または将来的にそれにスケールするシステムを構築する場合は、ファイルの追跡がスケーラブルな Auto Loader（cloudFiles）を使用することが推奨されます。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 11:\nデータエンジニアは、Databricksプラットフォームのどの部分を使用して、プリンシパル（ユーザー等）に対してセキュリティ保護可能なオブジェクトへのアクセス許可を付与および取り消すことができますか？",
+        options: [
+            "(A) Catalog Explorer (カタログエクスプローラー)",
+            "(B) Data Studio",
+            "(C) アカウントコンソール",
+            "(D) ワークスペース管理コンソール"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：データオブジェクト（カタログ、スキーマ、テーブルなど）のアクセス許可（GRANT/REVOKE）や所有権の管理は、「Catalog Explorer（カタログエクスプローラー）」を通じて視覚的およびシステム的に管理されます。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 12:\n以下のタスクのうち、Databricks Gitフォルダ (Repos) ではサポートされておらず、Gitプロバイダ (GitHub等) 側で実行する必要があるものはどれですか？",
+        options: [
+            "(A) ブランチを削除する",
+            "(B) 開発作業用のブランチを作成し、チェックアウトする",
+            "(C) コミット時に差異 (Diff) を視覚的に比較する",
+            "(D) リモートのGitリポジトリをクローン、プッシュ、またはプルする"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：DatabricksのGitフォルダ内で、コミット、プッシュ、プル、新しいブランチの作成や切り替え（チェックアウト）、Diffの比較は可能ですが、「ブランチの削除」や「プルリクエスト(PR)の作成」といった操作はサポートされておらず、GitHub等のプロバイダUIで行う必要があります。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 13:\nデータエンジニアは、以下のスキーマを持つ「products」テーブルを扱っています。\n\nproduct_id STRING,\nupdated_at TIMESTAMP,\ndetails STRUCT<name: STRING, category: STRING, pricing: STRUCT<base_price: DOUBLE, discount: DOUBLE>>\n\n彼らは、details内のすべてのフィールドをフラット化して、name, category, およびネストされた価格フィールドをルートレベルの列にしたいと考えています。この目的を正しく達成するSQLクエリはどれですか？",
+        options: [
+            "(A) SELECT product_id, updated_at, EXPLODE(details) FROM products;",
+            "(B) SELECT * FROM products;",
+            "(C) SELECT product_id, updated_at, details.name, details.category, details.pricing.base_price, details.pricing.discount FROM products;",
+            "(D) SELECT product_id, updated_at, details.* FROM products;"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：Databricks SQLでSTRUCT（構造体）の中身をフラット化して展開するには、ドット表記（`.`）を使用して各フィールドを明示的に抽出する必要があります。`details.*` とすると1階層目は展開されますが、その下の `pricing` STRUCTがネストされたまま残ってしまうため、最深部まで明示的に指定している(C)が正解です。EXPLODEはArrayやMapを展開するための関数であり、STRUCTには使用できません。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 14:\nデータエンジニアは、mask_credit_card(cc STRING) UDFを使用して列マスキングを一元的に適用するために、次のUnity Catalog ABACポリシーを定義します。\n\nCREATE POLICY banking_policy ON SCHEMA bank.safebox\nCOLUMN MASK bank.safebox.mask_credit_card\nTO financial_analysts EXCEPT admins\nFOR TABLES\n__________________________\nON COLUMN cc;\n\nbank.safeboxスキーマ内のすべてのテーブルにおいて、pii=credit_card というタグが付いたすべての列をマスクする必要があります。\n指定された要件を満たすために、空欄に正しく記入できる選択肢はどれですか？",
+        options: [
+            "(A) MATCH COLUMNS hasTag('pii') AS credit_card",
+            "(B) MATCH COLUMNS hasTagValue('pii') AS credit_card",
+            "(C) MATCH COLUMNS hasTagValue('pii', 'cc') AS credit_card",
+            "(D) MATCH COLUMNS hasTagValue('pii', 'credit_card') AS cc"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：Unity Catalogの属性ベースアクセス制御（ABAC）ポリシーで、タグの「キー」と「値」の両方が一致する列を識別するには `hasTagValue('タグキー', 'タグ値')` を使用します。また、最後の句が `ON COLUMN cc` となっているため、AS で付与するエイリアスも `cc` に一致させる必要があります。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 15:\nデータエンジニアがSpark UIを介してSparkジョブを分析しています。特定のステージで完了した27個のタスクについて、以下の要約メトリクスを取得しました。\nDuration: [25th=2s, Median=2s, 75th=3s, Max=30s]\nInput Size: [25th=179KiB, Median=183.9KiB, 75th=186.7KiB, Max=803KiB]\nShuffle Write Size: [25th=6.1KiB, Median=6.9KiB, 75th=8.1KiB, Max=300.8KiB]\n\nデータエンジニアは上記の統計データからどのような結論を導き出すことができるでしょうか？",
+        options: [
+            "(A) 空きパーティションまたはほぼ空きパーティション上で動作しているタスクの数が多い。",
+            "(B) すべてのタスクは、偏りの大きい大量のデータを含むパーティション上で動作しています。",
+            "(C) すべてのタスクは、均等な量のデータを含むパーティション上で動作します。",
+            "(D) 多数のタスクのうち、一部のタスクが偏りの大きいデータ量を含むパーティション上で動作している。"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：25%〜75%パーセンタイルのタスク実行時間は2〜3秒で安定していますが、Max（最大）タスクだけが30秒かかり、入力サイズとシャッフル書き込みサイズも突出して高くなっています。これは一部のキーにデータが極端に偏っている「データスキュー」が発生しており、少数のタスクだけが遅延していることを明確に示しています。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 16:\nDatabricksのスポットインスタンス (Spot Instances) を使用するのに最適なシナリオはどれですか？",
+        options: [
+            "(A) 厳格なSLA要件を満たすリアルタイムストリーム処理",
+            "(B) 再試行機能を備えた重要度の低いバッチ処理ジョブ",
+            "(C) 高い同時実行性を要求するトランザクションワークロード",
+            "(D) ビジネスアナリストによるインタラクティブなデータ分析"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：クラウドプロバイダーの余剰キャパシティを安価に利用できる「スポットインスタンス」は、プロバイダーの都合で突然強制終了（回収）されるリスクがあります。そのため、中断されても安全に再試行でき、時間の柔軟性がある「重要度の低い（またはフォールトトレラントな）バッチ処理ジョブ」に最適です。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 17:\nDelta Lakeのテーブルにおいて、データファイルの主要なフォーマットは次のうちどれですか？",
+        options: [
+            "(A) Delta",
+            "(B) JSON",
+            "(C) Parquet と JSON の両方",
+            "(D) Parquet (パルケ)"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：Delta Lakeのテーブルは、「Parquet」形式で保存された実データファイルと、データの変更履歴などを記録するJSON形式の「トランザクションログ」で構成されています。実データファイルの主要フォーマットはParquetです。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 18:\nデータエンジニアが、Deltaテーブルのディレクトリ内に未使用のデータファイルが存在することに気づきました。そこで VACUUM コマンドを実行しましたが、未使用のデータファイルの一部しか削除されませんでした。\nVACUUMコマンドを実行した後、未使用のデータファイルの一部しか削除されなかった理由として考えられるのは、次のうちどれですか？",
+        options: [
+            "(A) 残りのファイルはデフォルトの保存期間のしきい値よりも新しいため、削除されませんでした。",
+            "(B) 残りのファイルはデフォルトのサイズしきい値よりも小さいため、削除されませんでした。",
+            "(C) 残りのファイルはデフォルトの保持期間のしきい値よりも古いため、削除されませんでした。",
+            "(D) 残りのフアイルはデフォルトのサイズしきい値よりも大きいため、削除されませんでした。"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：VACUUMコマンドは、現在テーブルから参照されておらず、かつ「データ保持期間（デフォルトで7日間）」よりも古いデータファイルのみを削除します。保持期間より新しく生成されたばかりの未使用ファイルは、並行して実行中の別のクエリがまだ読み取っている可能性があるため、安全のために削除されず保持されます。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 19:\nデータエンジニアリングチームは、以下の宣言型自動化バンドル（DAB）構成を使用しています。\n\nbundle: name: demo_bundle\nvariables: catalog_name: default: demo_catalog\n\nチームは、ビジネスコードを変更することなく環境固有の動作を可能にするために、ターゲットごとに catalog_name 変数を設定したいと考えています。どの構成がこの要件を満たしますか？",
+        options: [
+            "(A) targets:\n      dev:\n        variables:\n          catalog_name: dev_catalog",
+            "(B) variables:\n      catalog_name:\n        default: demo_catalog\n        targets:\n            dev: dev_catalog",
+            "(C) variables:\n      catalog_name:\n        target: ${target}_catalog",
+            "(D) variables:\n      catalog_name:\n        dev: dev_catalog"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：Databricks Asset Bundlesにおいて、デプロイ先（devやprod）の環境ごとに変数の値を上書き設定する場合は、トップレベルに定義された `targets` ブロックの中で対象のターゲット名を指定し、その下に `variables` マッピングをネストして記述する必要があります。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 20:\nデータエンジニアは、以下のLakeflowジョブを管理します。\n          |---> Task 2\nTask 1 ---|---> Task 3\n          |---> Task 4\n彼らは、並行して実行されているすべてのタスク（タスク2、3、4）が完了した後に実行される新しいタスク、Task 5を追加したいと考えています。どのタスク構成がこの要件を満たしますか？",
+        options: [
+            "(A) タスク5をファンイン (fan-in) 制御フローを使用して、3つの並列タスクすべてに依存するように設定する。",
+            "(B) タスク5は、タスク2とタスク3の後に順番に実行されるタスク4のみに依存するように設定します。",
+            "(C) タスク5を別のジョブとして設定し、現在のジョブが完了した後に実行されるようにスケジュールする。",
+            "(D) 依存関係なしでタスク5を追加し、条件として run_if: ALL_DONE を指定する。"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：複数の並列タスク（Task 2, 3, 4）がすべて終わった後で次のタスク（Task 5）を実行する設計パターンを「ファンイン (fan-in)」と呼びます。Task 5の「依存先 (Depends on)」プロパティに、対象となる3つのタスクすべてを明示的に指定することで実現できます。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 21:\nデータエンジニアが、日々の機密データを処理するために、ノートブックをDatabricksジョブとしてスケジュール設定しました。彼らは、ジョブがトリガーされたときにノートブックのコードが実際にどこで実行されるのかを懸念しています。\nこのジョブの実行場所を説明しているのは、次のうちどれですか？",
+        options: [
+            "(A) Sparkを実行しているクラスターの計算プレーン (Compute Plane) において",
+            "(B) ノートブックが格納されているコントロールプレーン (Control Plane) 内",
+            "(C) Unity Catalogでのクエリプランニング中",
+            "(D) ワークスペースストレージバケット内"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：Databricksのアーキテクチャでは、ノートブックのメタデータはコントロールプレーンに保存されますが、実際のデータ処理やコードの実行（Sparkの分散処理）は、顧客のアカウント内にデプロイされたクラスターが稼働する「計算プレーン（データプレーン）」内で完全に処理されます。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 22:\nデータエンジニアが、非常に大きなPySparkデータフレームと小さなデータフレームを以下のように結合しています。\n`largeDF.join(smallerDF, [\"key\"], \"inner\")`\nこの結合処理はデータシャッフルが発生するため、処理速度が遅くなります。そこで、より小さなデータフレームをクラスタ内のすべての実行ノードに送信できるようにすることで、処理速度を最適化したいと考えています。\n以下の関数のうち、データフレームがすべての実行エンジンのメモリに収まるほど小さいとマークするために使用できるものはどれですか？",
+        options: [
+            "(A) pyspark.sql.functions.distribute",
+            "(B) pyspark.sql.functions.shuffle",
+            "(C) pyspark.sql.functions.explode",
+            "(D) pyspark.sql.functions.broadcast"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：`pyspark.sql.functions.broadcast` 関数を使用すると、指定した小さなDataFrameがクラスター内のすべてのワーカーノードにブロードキャスト（コピー）され、ネットワークを介した高コストなシャッフル処理を伴うことなく「ブロードキャストハッシュ結合」が強制的に実行されます。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 23:\nデータエンジニアは、宣言型自動化バンドル (DABs) を使用して、ローカルマシンからPATトークンを介して開発ワークスペースにジョブをデプロイしたいと考えています。\nデータエンジニアは、Databricks Unified Authenticationを設定するために、シェル環境でどの2つの環境変数を設定する必要がありますか？（2つ選択してください）",
+        options: [
+            "(A) DATABRICKS_CLIENT_ID",
+            "(B) DATABRICKS_CLIENT_SECRET",
+            "(C) DATABRICKS_WORKSPACE",
+            "(D) DATABRICKS_TOKEN",
+            "(E) DATABRICKS_HOST"
+        ],
+        answerIndex: [3, 4],
+        explanation: "解答：(D), (E)\n\n解説：ローカル環境からパーソナルアクセストークン（PAT）を用いてDatabricks CLIやバンドルを認証する場合、ワークスペースのURLを指定する `DATABRICKS_HOST` と、認証トークン自体を保持する `DATABRICKS_TOKEN` の2つの環境変数を設定する必要があります。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 24:\nデータエンジニアは、次のSQLクエリを使用します。\nGRANT USE SCHEMA ON SCHEMA sales_db TO finance_team\n\nUSE SCHEMA 権限の利点は次のうちどれですか？",
+        options: [
+            "(A) スキーマ(データベース)全体に対する完全なアクセス権限を付与します。",
+            "(B) スキーマへの読み取りアクセス権を付与します。",
+            "(C) データベースオブジェクトとそのメタデータを表示する機能を提供します。",
+            "(D) これはデータベース上で何らかの操作を行うための前提条件です。"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：Unity Catalogにおいて、`USE SCHEMA` 権限自体はデータの読み書きを許可するものではありませんが、そのスキーマ内のテーブルやビューにアクセスし、何らかの操作を実行するための「通行証（トラバーサル権限・前提条件）」として機能します。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 25:\nある金融サービス会社は、オンプレミスのSQL Serverデータベースから、毎晩のアカウントデータを管理された分析プラットフォームに移行したいと考えています。取り込まれたレコードは、管理されたUnity Catalogテーブルに保存され、アナリストがSQLダッシュボードを使用してデータを即座にクエリできるようにするとともに、コンプライアンス監査のための自動的なデータリネージ追跡を維持する必要があります。\nこれらの要件を最も満たす実装はどれですか？",
+        options: [
+            "(A) CSVファイルをオブジェクトストレージにエクスポートし、後で別のETLパイプラインでロードする。",
+            "(B) Spark JDBCを使用してデータを読み込み、Unity Catalog管理テーブルに直接書き込みます。",
+            "(C) テーブルを手動で登録する前に、ODBC経由でデータを一時ファイルに抽出します。",
+            "(D) Pandasを使用したローカルPythonスクリプトを使用して、ParquetファイルをUnityカタログボリュームにアップロードします。"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：オンプレミスのデータベースからデータを読み込み、即時クエリと自動データリネージの両方を実現するには、PySparkのJDBCフォーマットを使用してデータをメモリに読み込み、そのままUnity Catalogの管理対象テーブルに書き込む（`saveAsTable`）アプローチが最も確実で運用上の摩擦が少ない方法です。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 26:\nジュニアデータエンジニアは通常、INSERT INTOコマンドを使用してデルタテーブルにデータを書き込む。シニアデータエンジニアは、重複レコードの書き込みを回避する別のコマンドを使用することを提案した。\n以下のコマンドのうち、上級データエンジニアが提案したのはどれですか？",
+        options: [
+            "(A) MERGE INTO",
+            "(B) COPY INTO",
+            "(C) UPDATE",
+            "(D) INSERT OR OVERWRITE"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：Delta Lakeの `MERGE INTO` コマンドを使用すると、ターゲットテーブルとソースデータを照合し、「すでに存在する場合は更新 (Update)し、存在しない場合は挿入 (Insert)する」というアップサート処理が可能になります。これにより重複レコードの挿入を安全に回避できます。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 27:\nデータエンジニアは、Lakeflow Spark Declarative Pipeline（旧称 Delta Live Tables）において、以下のデータ品質制約を定義しました。\n\nCONSTRAINT valid_id EXPECT (id IS NOT NULL) _____________\n\n上記の空欄を埋めて、この制約に違反するレコードが発生するとパイプラインが「失敗 (Fail)」するようにしてください。",
+        options: [
+            "(A) ON VIOLATION FAIL UPDATE",
+            "(B) ON VIOLATION DROP ROW",
+            "(C) ON VIOLATION FAIL",
+            "(D) ON VIOLATION FAIL PIPELINE"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：DLTパイプラインにおいて、1つでも品質制約を満たさない無効なレコードが検出された場合に、パイプラインの更新全体を意図的に失敗させて停止させる動作を指定する句は `ON VIOLATION FAIL UPDATE` です。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 28:\nデータエンジニアが employeesDf というDataFrameを持っており、その中に salary という名前の列があります。この列の名前を、employeesDf に対する今後のすべての操作で base_salary に恒久的に変更したいと考えています。\nこの要件を満たすPySparkコード断片はどれですか？",
+        options: [
+            "(A) employeesDf = employeesDf.select(col(\"*\"), col(\"salary\").alias(\"base_salary\"))",
+            "(B) employeesDf = employeesDf.withColumn(\"salary\", \"base_salary\")",
+            "(C) employeesDf = employeesDf.select(col(\"salary\").alias(\"base_salary\"))",
+            "(D) employeesDf = employeesDf.withColumnRenamed(\"salary\", \"base_salary\")"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：PySparkで既存の列名を変更しつつ、他の列スキーマをそのまま維持するには `withColumnRenamed(既存名, 新規名)` を使用します。また、SparkのDataFrameは不変（Immutable）であるため、変更結果を元の変数名 `employeesDf` に再代入することで後続の処理に反映させます。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 29:\nデータエンジニアリングチームは、予測最適化 (Predictive Optimization) が有効になっているUnity Catalogテーブルを管理しています。彼らは、予測最適化の自動メンテナンスの一環として、これらのテーブルに対してどの操作が自動的に実行されるのかを把握していません。\n有効なテーブルに対して、予測最適化が「自動的に処理しない」操作は次のうちどれですか？",
+        options: [
+            "(A) ANALYZE",
+            "(B) OPTIMIZE",
+            "(C) ZORDER",
+            "(D) VACUUM"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：Databricksの予測最適化機能は、テーブルの統計情報の収集(ANALYZE)、ファイルの圧縮最適化(OPTIMIZE)、古いファイルの削除(VACUUM)をインテリジェントに自動実行します。しかし、特定の列に基づくソートである ZORDER（Zオーダー）の適用は自動的には行われません。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 30:\nジュニアデータエンジニアが、Lakeflow Spark Declarative Pipeline (SDP) にデータ品質検証機能を実装する任務を負いました。\nLakeflow 宣言型パイプラインにおいて、以下の関数呼び出しのうち、有効な期待値 (Expectation) 関数ではないものはどれですか？",
+        options: [
+            "(A) expect_or_drop( ... )",
+            "(B) expect_or_warn( ... )",
+            "(C) expect_or_fail( ... )",
+            "(D) expect( ... )"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：DLT（宣言型パイプライン）でサポートされているデータ品質制約の関数は `@expect` (警告のみ)、`@expect_or_drop` (違反行の破棄)、`@expect_or_fail` (違反でパイプライン停止) の3つです。`expect_or_warn` という名称の関数は存在しません。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 31:\n経験の浅いデータエンジニアが、15個のノートブックタスクを含むDatabricksジョブを作成します。各タスクは、15個の異なるテーブルに対して同じデータ検証ロジックを実行します。各タスクは前のタスクの完了に依存しているため、ワークフローが長くなり、保守が困難になります。\nこのユースケースにおいて、より効率的で拡張性の高いソリューションは何でしょうか？",
+        options: [
+            "(A) 1つのジョブに複数のタスクをまとめるのではなく、15個のジョブを別々にスケジュールする。",
+            "(B) すべてのテーブル検証を1つの大きなノートブックにまとめ、すべてのテーブルを順番にループ処理する。",
+            "(C) 15個のノートブックタスクを並列実行するように構成し、それぞれに個別のクラスタ構成を設定する。",
+            "(D) For eachタスクを使用して、テーブル名をパラメータとして渡しながら、各テーブルに対して同じ検証ノートブックを並列実行する。"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：Databricks Jobsの「For Eachタスク」を使用すると、リスト等で渡された引数（15個のテーブル名など）をループ処理し、同一のタスク（検証ノートブック）を自動的に並列実行できます。これにより、DAGが非常にシンプルになり、保守性が劇的に向上します。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 32:\nデータエンジニアが、既存のDatabricks SQLウェアハウスのクラスタサイズを拡張したいと考えています。\nDatabricks SQLウェアハウスのクラスタサイズを増やすことによるメリットは次のうちどれですか？",
+        options: [
+            "(A) クエリ実行の遅延 (レイテンシ) を軽減します。",
+            "(B) SQLウェアハウスのクラスタサイズは構成できません。代わりに、クラスタ数を増やすことができます。",
+            "(C) SQLウェアハウスの起動時間を短縮します。",
+            "(D) 大規模クラスターはスポットインスタンスを使用するため、コストが削減されます。"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：Databricks SQLウェアハウスの「クラスターサイズ（Small, Large, X-Largeなど）」を大きく（スケールアップ）すると、クラスター内のワーカーノードと計算リソースが増加し、処理能力が向上するため、複雑なクエリの実行遅延（レイテンシ）を削減できます。（※同時実行ユーザー数を増やす場合は「スケールアウト」を使用します）。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 33:\nデータエンジニアが宣言型自動化バンドル（旧称：Databricks Asset Bundles）を設定し、アセットを定義済みのターゲットワークスペースにプッシュしたいと考えています。\nデータエンジニアは、この目的を達成するためにどのDatabricks CLIコマンドを使用できますか？",
+        options: [
+            "(A) databricks bundle deploy",
+            "(B) databricks bundle deployment",
+            "(C) databricks bundle push",
+            "(D) databricks bundle validate"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：Databricks Asset Bundles (DABs) で構成ファイルの内容を実際のターゲットワークスペース環境にプッシュして構築・反映させるためのデプロイコマンドは `databricks bundle deploy` です。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 34:\nデータエンジニアがDatabricks SQLパイプラインで受信トランザクションデータを検証しています。一部のレコードの数値フィールドに予期しない記号が含まれています。エンジニアは次のクエリを実行します。\n\nSELECT COALESCE(CAST(\"100$\" AS INT), 0)\n\nこのクエリの結果を最も適切に表しているのは、次のうちどれですか？",
+        options: [
+            "(A) NULL",
+            "(B) 0",
+            "(C) 100",
+            "(D) エラーが発生しました"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：標準の `CAST` は、無効な文字が含まれていると変換できずに「実行時例外（エラー）」を発生させます。そのため、エラーによって内側の処理がクラッシュし、外側の `COALESCE` 関数（NULLなら0を返す関数）まで到達しません。エラーを出さずに0にフォールバックさせたい場合は、内側で `TRY_CAST` を使用する必要があります。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 35:\n以下の記述のうち、CREATE SCHEMAコマンドの使用方法を最もよく説明しているのはどれですか？",
+        options: [
+            "(A) データベース (スキーマ) を作成するために使用されます。",
+            "(B) これはスキーマを推論して「cloudFiles.schemaLocation」に保存するために使用されます。",
+            "(C) ターゲットテーブルにデータを書き込む際にスキーマをマージするために使用されます。",
+            "(D) テーブルスキーマ(列名とデータ型)を作成するために使用されます。"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：Databricks（およびApache Spark）において、`CREATE SCHEMA` は `CREATE DATABASE` と全く同じ動作をするエイリアスであり、カタログの中にテーブルを格納するためのコンテナであるデータベース（スキーマ）を作成するために使用されます。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 36:\nメダリオンアーキテクチャにおいて、ブロンズ層 (Bronze Layer) を最もよく表しているのは次のうちどれですか？",
+        options: [
+            "(A) これは、ビジネスレベルで集計されたデータを提供します。",
+            "(B) これは、フィルタリング、クリーニング、および強化されたデータのバージョンを表します。",
+            "(C) 分析、機械学習、および本番環境アプリケーションを支えるデータを保持します。",
+            "(D) さまざまなソースから取り込まれた生データを保持します。"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：ブロンズ層（Bronze Layer）は、Kafkaストリームや各種ファイルなどのソースシステムから取り込まれた、加工やクレンジングが行われていない元のままの「生データ (Raw data)」を保持する初期ランディングレイヤーです。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 37:\n以下の項目のうち、Deltaテーブルのネイティブ機能であるものはどれですか？（2つ選択してください）",
+        options: [
+            "(A) Delta Lakeは、JSON形式を使用して効率的なテーブルデータ保存を可能にします。",
+            "(B) Delta Lakeは、書き込み操作のたびに古いデータバージョンを自動的に削除して、容量を節約します。",
+            "(C) Delta Lakeは、クラウドオブジェクトストレージなどの基盤となるストレージシステムを一切必要としません。",
+            "(D) Delta Lakeは、テーブルを手動で再作成することなく、新しいオプション列を追加するようにテーブルスキーマを進化させることができます。",
+            "(E) Delta Lakeは、テーブルスキーマに準拠しない書き込みを防止します。"
+        ],
+        answerIndex: [3, 4],
+        explanation: "解答：(D), (E)\n\n解説：Delta Lakeの代表的なネイティブ機能は、予期せぬデータ型の挿入をブロックしてデータ品質を守る「スキーマ強制 (Schema Enforcement)」と、`mergeSchema` オプション等によりテーブルを再作成せず列を安全に追加できる「スキーマ進化 (Schema Evolution)」です。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 38:\nデータエンジニアが、トランザクションのタイムスタンプ、操作の種類、実行ユーザーなど、過去 30 日間に Delta テーブルに加えられたすべての変更を確認したいと考えています。どのコマンドを使用すればよいでしょうか？",
+        options: [
+            "(A) DESCRIBE HISTORY my_table",
+            "(B) SELECT * FROM my_table VERSION AS OF <version_number>",
+            "(C) DESCRIBE DETAIL my_table",
+            "(D) DESCRIBE EXTENDED my_table"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：Delta Lakeの `DESCRIBE HISTORY` コマンドを使用すると、テーブルに対していつ、誰が、どのような操作（INSERTやMERGE等）を実行したか、影響を受けた行数はいくつかといったトランザクションログと監査証跡の完全なリストを取得できます。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 39:\nCTAS (CREATE TABLE AS SELECT) ステートメントに関して、以下の記述のうち正しくないものはどれですか？",
+        options: [
+            "(A) CTASステートメントは手動でのスキーマ宣言をサポートします。",
+            "(B) CTASステートメントを使用すると、テーブル作成時にデータが挿入されます。",
+            "(C) CTASステートメントは、CREATE TABLE AS SELECT ステートメントの略です。",
+            "(D) CTASステートメントはクエリ結果からスキーマ情報を自動的に推測します。"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：CTAS (CREATE TABLE AS SELECT) は、SELECT文で取得したクエリ結果から列名やデータ型といったスキーマ情報を自動的に推論してテーブルを作成し、同時にデータを挿入します。そのため、括弧を用いた手動でのスキーマ宣言（データ型の明示的な定義）とは併用できません。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 40:\nデータエンジニアは、アプリケーションID「fe7bcf95-ab87-4dce-a2fd-8c55f8158a02」を持つサービスプリンシパルに、enterprise.reporting.transactions テーブルへの読み取り専用アクセス権を付与するよう指示されました。\nどのSQLコマンドを使えば、最小限の権限で正しくアクセス権限を付与できますか？",
+        options: [
+            "(A) GRANT SELECT ON TABLE enterprise.reporting.transactions TO `fe7bcf95...`;\nGRANT USE CATALOG ON CATALOG enterprise TO `fe7bcf95...`;",
+            "(B) GRANT SELECT ON TABLE enterprise.reporting.transactions TO `fe7bcf95...`;",
+            "(C) GRANT SELECT ON TABLE enterprise.reporting.transactions TO `fe7bcf95...`;\nGRANT USE SCHEMA ON SCHEMA enterprise.reporting TO `fe7bcf95...`;",
+            "(D) GRANT SELECT ON TABLE enterprise.reporting.transactions TO `fe7bcf95...`;\nGRANT USE SCHEMA ON SCHEMA enterprise.reporting TO `fe7bcf95...`;\nGRANT USE CATALOG ON CATALOG enterprise TO `fe7bcf95...`;"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：Unity Catalogの仕様として、対象のテーブルに対して `SELECT` アクセスを行うには、テーブル自身に対する読み取り権限に加え、その親コンテナであるスキーマに対する `USE SCHEMA` 権限と、さらにその親であるカタログに対する `USE CATALOG` 権限をすべて明示的に付与する必要があります。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 41:\nデータエンジニアは、「City ZipCode」（例：「Paris 75015」）という形式で場所を示す location 列を持つ DataFrame df を持っています。彼らは、元の場所列を削除し、city と zip_code という2つの新しい列を作成したいと考えています。\nデータエンジニアはどのPySparkコードスニペットを使用すべきでしょうか？",
+        options: [
+            "(A) df.select(split('location', ...).alias('places'))",
+            "(B) df.select(explode('location').alias('places')).select(...)",
+            "(C) df.withColumn(\"city\", split(col(\"location\"), \" \")[0]).withColumn(\"zip_code\", split(col(\"location\"), \" \")[1]).drop(\"location\")",
+            "(D) df.withColumn(\"city\", getItem(col(\"location\"), 0)).withColumn(\"zip_code\", getItem(col(\"location\"), 1)).drop(\"location\")"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：文字列を分割するには `split(col(\"列名\"), \"区切り文字\")` を使用します。これにより配列が生成されるため、1つ目の要素（都市）は `[0]` インデックスで、2つ目の要素（郵便番号）は `[1]` インデックスで取得し、`withColumn` で新しい列として追加します。最後に `drop` で元の列を削除するこのアプローチが正解です。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 42:\nデータパイプラインチームは、ピーク時間帯に予定されていた複数のジョブの実行が遅延し、予定時刻よりも遅れて開始されることに気づいた。\nこの行動に対する最も可能性の高い説明は何でしょうか？",
+        options: [
+            "(A) ワークフローはキューイングが有効になっており、max_concurrent_runs の制限に達しています。",
+            "(B) ジョブは timeout_seconds の値が低すぎるため、再試行が遅延します。",
+            "(C) このクラスターは、頻繁に終了されるスポットインスタンスを使用しています。",
+            "(D) タスク間の依存関係により、循環的な実行遅延が発生しています。"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：Databricks Jobsには同時実行数の上限を設定する `max_concurrent_runs` パラメータがあります。ピーク時にジョブが頻繁にトリガーされ、この上限に達した場合、新しいジョブは即座に失敗するのではなく「キューイング（QUEUED状態）」されて待機します。実行枠が空き次第開始されるため、予定時刻よりも開始が遅延しているように見えます。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 43:\nデータエンジニアリングチームは、トラフィック量の多い外部テーブルを管理対象テーブルに移行しています。進行中の分析ワークロードや業務運営への影響を最小限に抑えるため、移行プロセスは最小限の中断で済む必要があります。この要件を満たすために、彼らは `ALTER TABLE … SET MANAGED` と `DEEP CLONE` のどちらのアプローチを使用するかを決定する必要があります。\nこの変換において `DEEP CLONE` と比較して `SET MANAGED` によって得られる利点は何ですか？（2つ選択してください）",
+        options: [
+            "(A) SET MANAGEDは、予測最適化を使用して、変換処理がオフピーク時に実行されるようにスケジュールします。",
+            "(B) SET MANAGEDは、データコピー時間を短縮するために、デルタトランザクションログのみを移行します。",
+            "(C) SET MANAGEDは、リーダーとライターのダウンタイムを最小限に抑えます。",
+            "(D) SET MANAGED は、変換中の同時書き込みを処理します。",
+            "(E) SET MANAGED はデータをそのまま残し、既存のテーブルの場所を参照するだけです。"
+        ],
+        answerIndex: [2, 3],
+        explanation: "解答：(C), (D)\n\n解説：外部テーブルから管理対象テーブルへ移行する際、`SET MANAGED` を使用すると、変換中でもリーダーおよびライターの操作（同時書き込み等）を継続でき、移行に伴うダウンタイムをほぼゼロに抑えることができるという大きな利点があります。データやトランザクションログはバックグラウンドで安全にコピー移行されます。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 44:\nDatabricks Jobsにおいて、データエンジニアはタスクAとタスクBの間に線形依存関係（Aが終わったらBを実行）を設定するために、次のうちどの方法を使用できますか？",
+        options: [
+            "(A) タスクAには注文番号1を、タスクBには注文番号2を割り当てることができる。",
+            "(B) dbutils.jobsユーティリティを使用して、ノートブックレベルで依存関係を設定できます。",
+            "(C) タスクBの設定の「依存先 (Depends on)」フィールドでタスクAを選択できます。",
+            "(D) ジョブキャンバス上で、タスクAからタスクBへ矢印をドラッグアンドドロップすることで視覚的に操作できます。"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：Databricksのジョブワークフローにおいて、タスク間の実行順序や依存関係を定義するには、後続タスクの設定画面内にある「依存先 (Depends on)」プロパティのドロップダウンから、先行して完了すべき上流タスクを選択します。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 45:\nデータエンジニアは既存のDatabricksジョブを持っており、それを宣言型自動化バンドル (DABs) を使用して管理したいと考えています。Databricks CLIを使用して、既存ジョブのYAML定義を自動的に取得し、参照されている成果物（ノートブック等）をダウンロードし、新しいジョブではなく既存のジョブとリンクさせる（更新バインドする）必要があります。\n以下のコマンドのうち、データエンジニアがこれを実現できるのはどれですか？",
+        options: [
+            "(A) databricks bundle clone job --existing-job-id <job_id> --link",
+            "(B) databricks bundle download job --existing-job-id <job_id> --bind",
+            "(C) databricks bundle get job --existing-job-id <job_id> --link",
+            "(D) databricks bundle generate job --existing-job-id <job_id> --bind"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：既存のワークスペース上のジョブ定義からバンドル設定（YAML）や関連ファイルをローカルに生成抽出するコマンドは `databricks bundle generate` です。さらに `--bind` フラグを付けることで、生成された構成が新しいジョブを作成するのではなく、既存のジョブIDへデプロイされるように自動的に紐付け（リンク）されます。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 46:\nデータエンジニアリングチームは、結合処理中に偏ったデータ（データスキュー）を処理するSparkジョブを実行する必要があり、その結果、パフォーマンスの遅延が発生する可能性があります。クラスターでは、アダプティブクエリ実行（AQE）が有効になっています。\nこの場合、AQEはデータの歪みをどのように解消するのに役立つのでしょうか？",
+        options: [
+            "(A) AQEは、分散処理の利点を維持しながら実行効率を向上させるために、パーティショニングを完全に無効にします。",
+            "(B) AQEは、負荷分散と並列処理の向上を図るため、すべての結合をデカルト積に変換します。",
+            "(C) AQEは偏ったパーティションを自動的に検出し、並列処理のためにそれらをより小さなサブパーティションに分割します。",
+            "(D) AQEはデータセットから偏ったデータを除去し、データの偏りの影響を動的に軽減します。"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：アダプティブクエリ実行（AQE）の「スキュー結合最適化 (Skew Join Optimization)」機能は、結合ステージで特定のパーティションにデータが極端に偏っていることを実行時に自動検出し、その巨大なパーティションをより小さなサブパーティションに分割します。これにより、タスクがワーカー間で均等に分散され、並列処理が改善します。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 47:\nデータエンジニアは現在、自動終了時間を6時間に設定した汎用クラスタを使用して、毎晩増分ETLジョブを実行しています。ワークロードの完了時間は毎晩異なり、1～3時間かかります。彼らは、同じスケジューリング動作を維持しながら、コンピューティングコストを削減したいと考えています。\nデータエンジニアは、コンピューティングコストを削減するために、どの手法を用いるべきでしょうか？",
+        options: [
+            "(A) 汎用クラスタの自動終了設定を3時間に短縮する。",
+            "(B) 汎用クラスタをより小さなワーカーノードを使用するように構成します。",
+            "(C) AvailableNowトリガーオプションを使用して、ストリーム処理を自動的に停止します。",
+            "(D) ワークロード完了後に自動的に終了するジョブクラスター (Job Compute) を使用する。"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：定時実行されるETLジョブには「ジョブクラスター（Job Compute）」を使用するのが最適です。ジョブクラスターは汎用クラスターよりもDBU料金が安く、さらにジョブの完了と同時にクラスターが即時終了するため、完了時間が変動しても不要なアイドル時間が1秒も発生せず、コストを劇的に削減できます。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 48:\nデータエンジニアが、大きな Spark DataFrame に対して `df.toPandas()` を実行した後に `java.lang.OutOfMemoryError` (OOM) が発生しました。\nこの問題を解決するために、データエンジニアはどのような行動を取るべきでしょうか？",
+        options: [
+            "(A) エグゼキュータメモリを増やす",
+            "(B) アダプティブクエリ実行 (AQE) を有効にする",
+            "(C) シャッフルパーティションの数を増やす",
+            "(D) ドライバメモリを増やす"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：`toPandas()` や `collect()` などのアクションメソッドを実行すると、Sparkはクラスター全体（エグゼキュータ側）に分散しているすべてのデータを収集し、単一のノードである「ドライバノード」のローカルメモリに強制的に送信・集約します。データ量が多すぎてこのドライバ側のメモリが溢れたことがOOMの原因であるため、解決策はドライバメモリを増やすことです。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 49:\nAuto Loaderがデータを増分的にロードするために使用する基盤技術は次のうちどれですか？",
+        options: [
+            "(A) COPY INTO",
+            "(B) Spark Structured Streaming (構造化ストリーミング)",
+            "(C) DEEP CLONE",
+            "(D) Multi-hop architecture"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：Auto Loaderは、Databricksが「Spark Structured Streaming（構造化ストリーミング）」エンジンを拡張して構築した機能です。バックグラウンドではストリーミング技術を利用して、クラウドストレージ上の新規ファイル（cloudFiles）を継続的かつ効率的に増分処理します。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 50:\nデータエンジニアリングチームは、Unity Catalog 内の拡大し続ける管理対象 Delta テーブルにおける最適なデータレイアウト戦略について議論しています。クエリパフォーマンスを向上させるために、パーティショニング、Z オーダー、および Liquid Clustering の導入を検討しています。\nどのシナリオが、自動Liquid Clustering (リキッドクラスタリング) が推奨される選択肢であることを最もよく示していますか？",
+        options: [
+            "(A) チームは、このテーブルに対して安定したクラスタリングキーを特定した。",
+            "(B) 記載されているオプションはいずれも正しくありません。自動リキッドクラスタリングは管理対象テーブルには適用できません。",
+            "(C) この表は、一貫した少数の日付範囲によって厳密にフィルタリングされています。",
+            "(D) このテーブルでは、複数の列にわたって多様で頻繁に変化するクエリフィルタが適用され、アクセスパターンも予測不可能です。"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：Liquid Clusteringは、時間の経過とともに変化する複雑で予測不可能なクエリパターン（WHERE句の条件となる列が頻繁に変わる、または複数列の組み合わせがランダムに指定されるなど）に対して、データを動的かつ継続的に再編成してスキップ効率を高めるよう設計された柔軟な最適化機能です。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 51:\nデータエンジニアが、S3バケットからJSONデータを取り込むためのDatabricks Auto Loaderストリームを設定しています。受信データに新しい列が検出された場合、パイプラインは失敗するはずですが、それらの新しい列はスキーマに追加され、後続の実行が「更新されたスキーマ」で正常に再開できるようにする必要があります。既存の列は、そのデータ型を維持する必要があります。\n\nspark.readStream \\\n  .option(\"cloudFiles.schemaEvolutionMode\", \"_______________\") \\\n\n指定された要件を満たすために、空欄に正しく記入できる選択肢はどれですか？",
+        options: [
+            "(A) none",
+            "(B) addNewColumns",
+            "(C) rescue",
+            "(D) failOnNewColumns"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：Auto Loaderのデフォルト動作である `addNewColumns` モードでは、ストリームが新しい列を検出した際に、そのバッチの処理を意図的に失敗させて停止しますが、同時にターゲットのスキーマを自動的に更新（新しい列を追加）します。そのため、次回ジョブを再起動した際には更新済みのスキーマとして正常に処理を再開できます。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 52:\nデータエンジニアリングチームは、それぞれ数百の列と数十億のレコードを含む複数の大規模データセットを結合する、大規模なETLパイプラインを処理しています。結合フェーズ中に、Sparkエグゼキュータが繰り返しデータをディスクに書き出しており、過剰なシャッフルによってパフォーマンスが著しく低下していることに気づきました。\nこの業務のパフォーマンスを向上させるために、チームはどのようなリソース最適化を優先すべきでしょうか？",
+        options: [
+            "(A) ストレージ最適化 (Storage Optimized)",
+            "(B) メモリ最適化済み (Memory Optimized)",
+            "(C) GPU最適化済み",
+            "(D) 計算最適化 (Compute Optimized)"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：巨大なデータセットの結合（Join）処理では、一時的に大量のデータがメモリに保持されます。メモリが不足するとデータがディスクに一時退避（ディスクスピル）され、激しいI/Oオーバーヘッドによって処理が著しく遅延します。この場合、ワーカーノードのRAM容量が極めて多い「メモリ最適化 (Memory Optimized)」インスタンスに変更することで、メモリ内ですべての処理を完結させてパフォーマンスを向上させることができます。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 53:\nデータエンジニアは、複数の企業ソース（Salesforce、SQLデータベース、Kafkaストリーム、Azure Data Lake Storage）から販売取引データを段階的にUnity Catalogテーブルに取り込みたいと考えています。\nデータエンジニアはこの要件を満たすために、どの構成を使用すべきでしょうか？",
+        options: [
+            "(A) CDC対応の全ソースに対応する単一の標準コネクタ",
+            "(B) CDC対応の全ソースに対応する単一の統合Lakeflowコネクタ",
+            "(C) CDC対応の全ソース向け単一管理コネクタ",
+            "(D) CDCを使用したソースカテゴリごとの個別のコネクタの分離"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：Lakeflow Connectなどにおけるデータ取り込みでは、SaaS（Salesforce）、リレーショナルDB（SQL）、メッセージバス（Kafka）、オブジェクトストレージ（ADLS）といったテクノロジーはそれぞれAPI構造やCDC（変更データキャプチャ）の仕組み、認証方法が全く異なります。そのため、これらすべてを処理する「単一の汎用コネクタ」は存在せず、ソーステクノロジーごとに適切な個別コネクタを別々に構成して分離する必要があります。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 54:\nデータエンジニアが、`./src/my_notebook.py` にあるノートブックを実行するジョブを定義する Databricks Asset Bundles (DABs) を準備しています。YAML 設定を作成する際に、エンジニアは次のように記述しました。\n\nbundle:\n    name: my_bundle\n____________:\n  jobs:\n    my_job:\n      tasks:\n        - task_key: test_task\n          notebook_task:\n            notebook_path: './src/my_notebook.py'\n\nバンドルが有効かつデプロイ可能であることを保証するには、上記の空白部分にどのキーを正しく置き換える必要がありますか？",
+        options: [
+            "(A) workflows",
+            "(B) settings",
+            "(C) pipelines",
+            "(D) resources"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：Databricks Asset BundlesのYAML設定（`databricks.yml`）において、ジョブ、パイプライン、クラスターなどのデプロイ対象オブジェクトを包括的に定義するトップレベルのキーは `resources` です。"
+    },
+    {
+        course: "exam3",
+        category: "模擬試験",
+        question: "問題 55:\nデータエンジニアがリモートGitリポジトリからGitフォルダを更新するために使用できる操作は次のうちどれですか？",
+        options: [
+            "(A) Push (プッシュ)",
+            "(B) Commit (コミット)",
+            "(C) Pull (プル)",
+            "(D) Clone (クローン)"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：リモートリポジトリ（GitHubなど）で発生した最新の変更内容を取得・ダウンロードし、Databricksワークスペース内のローカルGitフォルダに反映（更新）させる操作は「Pull（プル）」です。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 1:\nグローバル航空会社は、複数の国からのフライト予約情報を保管しています。予約のタイムスタンプは、各空港の現地時間帯で記録されます。\n正確な報告と顧客活動の追跡を確実にするために、タイムスタンプはどのように標準化されるべきでしょうか？",
+        options: [
+            "(A) タイムゾーンのコンテキストなしでタイムスタンプを保存する",
+            "(B) 読みやすさを考慮して、すべてのタイムスタンプを文字列型で保存する",
+            "(C) タイムスタンプは現地時間で保持し、タイムゾーン変換はBIツールでのみ適用する",
+            "(D) すべてのタイムスタンプをUTCのTIMESTAMP型として保存する"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：グローバルなデータアーキテクチャにおいては、タイムスタンプを協定世界時（UTC）で保存することが絶対的に最善のプラクティスです。これにより、タイムゾーン間の曖昧さや夏時間（DST）によるデータの異常を防ぎ、インデックス作成やソートのパフォーマンスも向上します。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 2:\nデータエンジニアが、製品販売データを処理するためのLakeflow Spark宣言型パイプライン（旧Delta Live Tables）を構築しています。このパイプラインは、以下のデータ品質ルールを適用する必要があります。\n\nvalid_products = {\"valid_id\": \"products_id IS NOT NULL\", \"recent_sales\": \"date >= '2025-01-01'\", \"quantity_within_range\": \"quantity BETWEEN 0 AND 1000\"}\n\n無効なレコードはすべてターゲットに書き込まれる必要があり、同時にこれらの違反に関するメトリクスはパイプラインによって収集されます。以下の構成のうち、これらの要件を満たすものはどれですか？",
+        options: [
+            "(A) @dp.table\n@dp.expect_or_fail(valid_products)\ndef silver_sales():\n    return spark.readStream(\"bronze_sales\")",
+            "(B) @dp.table\n@dp.expect(valid_products)\ndef silver_sales():\n    return spark.readStream(\"bronze_sales\")",
+            "(C) @dp.table\n@dp.expect_or_drop(valid_products)\ndef silver_sales():\n    return spark.readStream(\"bronze_sales\")",
+            "(D) @dp.table\n@dp.expect_all(valid_products)\ndef silver_sales():\n    return spark.readStream(\"bronze_sales\")"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：辞書（ディクショナリ）形式で定義された複数のデータ品質ルールをまとめて適用し、違反レコードも破棄せずにメトリクスとして収集するには `@dp.expect_all()` を使用します。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 3:\n以下のうち、ゴールドテーブル (Gold table) を情報源として利用する最も一般的なものはどれですか？",
+        options: [
+            "(A) オートローダー (Auto Loader)",
+            "(B) ブロンズテーブル (Bronze table)",
+            "(C) ダッシュボード (Dashboard)",
+            "(D) シルバーテーブル (Silver table)"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：ゴールドテーブルは、特定のビジネスユースケースに合わせて高度に集計・精製されたデータを提供します。そのため、BIツールでのレポート作成やダッシュボードの直接の情報源として利用されます。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 4:\nデータエンジニアは、トランザクションデータをSilverテーブルにロードする前に、データのクリーニングを行っています。データ品質を向上させるために、エンジニアは次のPySparkコマンドを使用します。\n\ndf.na.drop(how='all')\n\nこのコマンドの効果は何ですか？",
+        options: [
+            "(A) 行内のすべての列がnullの場合にのみ行を削除します。",
+            "(B) いずれかの列にnull値が含まれる行を削除します。",
+            "(C) すべてのnull値を空の文字列に置き換えます。",
+            "(D) すべての列がnullでない行を削除します。"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：`df.na.drop()` の `how` パラメータを `'all'` に設定すると、指定された行の「すべての列」が NULL または NaN である完全に空のレコードのみを削除します。1つでも有効な値が含まれていれば、その行は削除されずに保持されます。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 5:\nデータエンジニアは、host:port のリモート Kafka ブローカーでホストされている events_topic という名前の Kafka トピックからイベントのストリームを消費するタスクを任されています。\n以下のコードスニペットのうち、このKafkaトピックから読み込むためのストリーミングDataFrameをPySparkで正しく構築しているのはどれですか？",
+        options: [
+            "(A) eventsStream = (spark.readStream.format(\"kafka\").option(\"kafka.bootstrap.servers\", \"host:port\").option(\"subscribe\", \"events_topic\").option(\"startingOffsets\", \"latest\").load())",
+            "(B) eventsStream = spark.readStream.format(\"kafka\").load(\"host:port\", \"events_topic\", \"latest\")",
+            "(C) eventsStream = (spark.readStream.format(\"cloud_files\").option(\"cloudFiles.format\", \"kafka\")...load())",
+            "(D) eventsStream = spark.readStream.kafka(\"host:port\", \"events_topic\", \"latest\")"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：Kafkaからストリームを読み込む正しいPySpark構文は、`format(\"kafka\")` を指定した上で、`.option()` メソッドを使ってブローカーアドレス（kafka.bootstrap.servers）、トピック名（subscribe）、および開始オフセット（startingOffsets）を明示的に指定して `load()` を呼び出すアプローチです。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 6:\nデータエンジニアが、price という名前の列を含む複数の列を持つ productsDf という PySpark DataFrame を扱っています。元の DataFrame のスキーマを変更せずに、クエリ出力で price 列を unit_price という一時的なエイリアスで表示しながら、DataFrame から「すべての列」を返したいと考えています。\nこの要件を満たすPySparkコード断片はどれですか？",
+        options: [
+            "(A) productsDf.select(col(\"*\"), col(\"price\").alias(\"unit_price\"))",
+            "(B) productsDf.selectExpr(\"price as unit_price\")",
+            "(C) productsDf.select(col(\"price\").alias(\"unit_price\"))",
+            "(D) productsDf = productsDf.withColumnRenamed(\"price\", \"unit_price\")"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：元のデータフレームのスキーマを変更せずに出力だけを調整するためには `select` を使用します。元のすべての列を含めるための `col(\"*\")` と、価格列を別名で表示するための `col(\"price\").alias(\"unit_price\")` を組み合わせることで要件を満たします。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 7:\nエンジニアリングチームは、頻繁に更新と削除が行われる大規模なDelta Lakeテーブルを管理しています。彼らは、小さなデータファイルの増加により、クエリのパフォーマンスが時間とともに低下していることに気づきました。この問題を解決するため、頻繁に使用される列に対して Z-Order インデックスを設定した OPTIMIZE コマンドを実行することにしました。\nこれらのコマンドが効率的に実行されるようにするために、エンジニアリングチームはどのようなリソース最適化を優先すべきでしょうか？",
+        options: [
+            "(A) 計算最適化 (Compute Optimized)",
+            "(B) GPU最適化済み",
+            "(C) メモリ最適化済み (Memory Optimized)",
+            "(D) ストレージ最適化 (Storage Optimized)"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：`OPTIMIZE` によるファイルの圧縮と `ZORDER` によるデータの再ソートは、非常に高いCPU負荷を伴う計算処理です。そのため、これらのタスクを効率的に処理するには、CPUパワーと並列処理能力に優れた「計算最適化 (Compute Optimized)」クラスターを優先して使用すべきです。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 8:\nDatabricks ジョブにおける Cron 構文を説明しているのは次のうちどれですか？",
+        options: [
+            "(A) これはジョブの実行タイムアウトを表す表現です。",
+            "(B) これは、ジョブの最大同時実行数を表す表現です。",
+            "(C) これは、プログラムで定義できる複雑なジョブスケジュールを表す表現です。",
+            "(D) これはジョブの再試行ポリシーを表す表現です。"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：Cron構文（例: `0 0 12 * * ?`）を使用することで、「毎月第1月曜日の午後12時」のような、プログラムで定義可能な複雑かつ柔軟なジョブの実行スケジュールを表現できます。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 9:\nDatabricks Intelligence Platformにおいて、データウェアハウジングソリューションを提供するサービスは次のうちどれですか？",
+        options: [
+            "(A) SQLウェアハウス",
+            "(B) Unity Catalog",
+            "(C) Lakeflow Connect",
+            "(D) Databricks SQL"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：Databricksプラットフォーム上で動作し、BIツールとの統合やSQLクエリの実行に特化したサーバーレスのデータウェアハウス機能を提供するサービス（製品名）は「Databricks SQL」です。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 10:\nデータエンジニアリングチームは、SnowflakeからDatabricksへ6時間ごとに販売データを同期する必要があります。不要な処理や重複を避けるため、変更されたレコードのみを取り込むようにしてください。\nこの要件を最も満たす取り込み方法はどれですか？",
+        options: [
+            "(A) Snowflakeのデータをファイルにエクスポートし、6時間ごとにターゲットテーブルに追加する。",
+            "(B) Snowflakeテーブルは6時間ごとに完全に更新されます。",
+            "(C) Snowflake用の Lakeflow マネージドコネクタを使用した増分データ取り込み",
+            "(D) Snowflakeからの構造化ストリーミング取り込み"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：Lakeflow Connectのマネージドコネクタ（Snowflake用）を使用すると、追加コードなしで完全管理型の増分データ取り込み（変更データのキャプチャ）が可能になり、不要な計算オーバーヘッドや重複処理を回避しつつ、定期的なスケジュール同期をシームレスに実現できます。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 11:\nメダリオンアーキテクチャにおいて、ゴールドレイヤー (Gold Layer) テーブルを最も適切に説明しているのは、次のうちどれですか？",
+        options: [
+            "(A) さまざまなソースから取り込んだ生データを保持しています。",
+            "(B) これらは、分析、機械学習、および本番環境アプリケーションを支えるビジネスレベルの集計機能を提供する。",
+            "(C) このレイヤーのテーブル構造は、ソースシステムのテーブル構造に似ていますが、ロード時間などの追加のメタデータ列が含まれています。",
+            "(D) これらは、フィルタリング、クリーニング、および強化されたデータのバージョンを表しています。"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：ゴールドテーブルは、ビジネスインテリジェンス（BI）、ダッシュボード、機械学習モデル向けに高度に洗練・集計されたデータセットを提供する、メダリオンアーキテクチャの最終層です。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 12:\nデータアーキテクトは、オンプレミスデータベースに安全に接続できるハイブリッドデータプラットフォームを設計しています。これらのデータベースは、Databricks内からSQLを使用してクエリを実行する必要があり、コンプライアンス上の理由から、プラットフォームは企業の独自ネットワーク内に留まる必要があります。\nこのアーキテクチャをサポートするために、設計者はどのコンピューティングタイプを選択すべきでしょうか？",
+        options: [
+            "(A) ジョブ向けのサーバーレスコンピューティング",
+            "(B) ノートブック向けサーバーレスコンピューティング",
+            "(C) サーバーレスSQLウェアハウス",
+            "(D) Pro SQL Warehouse (プロSQLウェアハウス)"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：企業のプライベートネットワーク（VPC/VNet）内にデプロイされ、オンプレミスのデータベース等へ直接セキュアにルーティングする必要がある場合、Databricks側のネットワークで稼働する「サーバーレス」ではなく、顧客ネットワーク内にデプロイできる「Pro SQL Warehouse」を選択する必要があります。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 13:\nシニアデータエンジニアは、データ探索において `df.describe()` の代わりに `df.summary()` を使用することを提案しました。\n`df.summary()` は `df.describe()` と比較してどのような利点がありますか？",
+        options: [
+            "(A) df.summary() は、df.describe() では取得できない近似四分位数（25%、50%、75%）などの拡張された統計情報を提供します。",
+            "(B) df.summary() は、統計を計算する前にNull値を自動的にクリーンアップし、外れ値を除外します。",
+            "(C) df.summary() は、データセットに対するAI生成の要約を提供し、実際のデータ値に基づいたインサイト、パターン、推奨事項を提示します。",
+            "(D) df.summary() は、データセットの各列に対して視覚的なチャートやインタラクティブなプロットを生成します。"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：PySparkにおいて、`describe()` はカウント、平均、標準偏差、最小値、最大値という固定の統計情報のみを返します。一方、`summary()` はそれに加えて、25%、50%（中央値）、75%の近似四分位数を自動的に計算して提供するという利点があります。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 14:\nデータエンジニアは、Lakeflow Spark Declarative Pipeline (旧称 Delta Live Tables) で以下のデータ品質制約を定義しました。\n\nCONSTRAINT valid_id EXPECT (id IS NOT NULL) _____________\n\n上記の空欄を埋めて、この制約に違反するレコードが「対象テーブルに追加され、メトリクスに報告される」ようにしてください。",
+        options: [
+            "(A) ON VIOLATION NONE",
+            "(B) ON VIOLATION FAIL UPDATE",
+            "(C) ON VIOLATION ADD ROW",
+            "(D) ON VIOLATION句を追加する必要はありません。デフォルトで制約に違反するレコードは保持され、イベントログに報告されます。"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：DLTにおいて、`EXPECT` 制約（ON VIOLATION句なし）のみを指定した場合、デフォルトの動作として「違反したレコードはテーブルにそのまま書き込まれるが、違反の事実はデータ品質メトリクスやイベントログに警告として記録される」という動作になります。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 15:\nDatabricksクラスターでスポットインスタンス (Spot Instances) を使用する主な利点は何ですか？",
+        options: [
+            "(A) セキュリティとコンプライアンスの強化",
+            "(B) データストレージの遅延が軽減されること",
+            "(C) ジョブ実行時間の保証",
+            "(D) 計算コストの大幅な削減"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：クラウドプロバイダーの余剰コンピューティングリソースを活用するスポットインスタンスを使用する最大の利点は、オンデマンドインスタンスと比較して運用コストを大幅（最大90%程度）に削減できることです。ただし、予期せぬ中断のリスクが伴います。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 16:\nUnity Catalogで管理されるDeltaテーブルにおいて、Automatic Liquid Clustering (自動リキッドクラスタリング) はどの列をクラスタリングキーとして使用するかをどのように決定するのですか？",
+        options: [
+            "(A) テーブル作成時に指定された、事前定義されたクラスタリング列からインテリジェントに選択します。",
+            "(B) 予測最適化を活用して、観測されたクエリ動作に基づいて最適なクラスタリングキーを選択します。",
+            "(C) スキーマ内の列定義のタイプと順序に基づいて、最適なクラスタリングキーを自動的に決定します。",
+            "(D) 高度なサンプリング戦略を活用し、すべてのファイル間でデータを均一にバランスさせた後、列の選択をランダム化します。"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：Databricksの「自動」Liquid Clusteringは、予測最適化（Predictive Optimization）の機能と統合されており、実際のアクセスパターンやクエリ動作を継続的に監視・分析することで、手動でキーを指定しなくても自動的に最適なクラスタリングキーを選択してレイアウトを最適化します。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 17:\nデータエンジニアが、パーティション間でデータを再配置する必要がある広範囲な変換を実行するSparkジョブを実行しましたが、ExecutorLostFailureエラーメッセージが表示されて失敗しました。\nこの問題を解決するために、データエンジニアはどの2つの行動を取るべきでしょうか？（2つ選択してください）",
+        options: [
+            "(A) Photonエンジンを有効にする",
+            "(B) エグゼキュータあたりのコア数を増やす",
+            "(C) シャッフルパーティションの数を増やす",
+            "(D) ドライバメモリを増やす",
+            "(E) エグゼキュータメモリを増やす"
+        ],
+        answerIndex: [2, 4],
+        explanation: "解答：(C), (E)\n\n解説：シャッフル処理中に発生する `ExecutorLostFailure`（通常は OOM: メモリ不足エラーが原因）を防ぐには、物理的に「エグゼキュータのメモリを増やす」ことと、処理の単位を細かくして1タスクあたりのメモリ負荷を下げるために「シャッフルパーティションの数を増やす（spark.sql.shuffle.partitions）」ことが直接的な解決策になります。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 18:\nデータエンジニアは、以下のオートローダーストリームを使用して、オブジェクトクラウドストレージからJSONファイルをDeltaテーブルに段階的に取り込んでいます。\n\nspark.readStream.format(\"cloudFiles\")\n  .option(\"cloudFiles.format\", \"json\")\n  _____________________________\n  .load(cloud_storage_path)\n\nデータ修正を適用するために、同じパスとファイル名でファイルが再アップロードされる場合があります。これらの修正をテーブルに読み込むために、空欄に正しく記入されるオプションはどれですか？",
+        options: [
+            "(A) .option(\"mergeSchema\", \"true\")",
+            "(B) .option(\"cloudFiles.force\", \"true\")",
+            "(C) .option(\"cloudFiles.includeExistingFiles\", \"true\")",
+            "(D) .option(\"cloudFiles.allowOverwrites\", \"true\")"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：Auto Loaderのデフォルト動作では、一度処理したファイルパスは二度と読み込みません。しかし `cloudFiles.allowOverwrites = true` を設定すると、ファイルパスだけでなく「最終更新日時」も追跡するようになり、同じ名前のファイルが上書き（再アップロード）された際にそれを検知して再処理できるようになります。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 19:\nデータエンジニアがSpark UIを介してSparkジョブを分析しています。特定のステージで完了した27個のタスクについて、以下の要約メトリクスを取得しました。\nDuration: [25th=20s, Median=25s, 75th=30s, Max=45s]\nGC Time: [25th=32.0ms, Median=44.0ms, 75th=51.0ms, Max=1.9s]\nInput Size: [25th=179KiB, Median=183.9KiB, 75th=186.7KiB, Max=203KiB]\n\nデータエンジニアは上記の統計データからどのような結論を導き出すことができるでしょうか？",
+        options: [
+            "(A) ステージは大きな問題なく正常に稼働しています。",
+            "(B) システムがガベージコレクション（GC）に時間をかけすぎている。",
+            "(C) クラスターには、ワークロードを処理するのに十分なリソースがありません。",
+            "(D) データがタスク間で均等に分布していないため、データに偏りがあることが示されています。"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：タスクの実行時間、入力サイズ、シャッフルサイズが中央値（Median）と最大値（Max）の間で極端な差がなく均一に分布しており、ガベージコレクション時間もタスク実行時間に比べてごくわずか（数ミリ秒〜最大2秒未満）であるため、データの偏りやメモリ不足の兆候はなく、ステージは健全に動作していると結論付けられます。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 20:\n医療分析会社が、数秒ごとに医療画像メタデータファイルをクラウドオブジェクトストレージに受信しています。コンプライアンス要件のため、ストレージには数か月にわたって数千ものアーカイブされたJSONファイルが蓄積されています。\n・アーカイブされたすべてのファイルを正確に一度だけ処理する\n・ほぼリアルタイムで新しい受信ファイルを自動的に検出する\n・ストレージAPI呼び出しとメタデータ一覧表示のオーバーヘッドを最小限に抑える\n\nどの取り込み方法が最も適切でしょうか？",
+        options: [
+            "(A) オートローダーをディレクトリ一覧表示モードで使用する。",
+            "(B) 既存ファイルを処理するためにCOPY INTOを使用し、次にファイル通知モードのAuto Loaderを使用する。",
+            "(C) 最初にCTASステートメントを使用してバッチモードでロードし、その後Auto Loaderを使用する。",
+            "(D) 現在および将来のファイルについて、イベントベースのファイル検出を有効にするために「ファイル通知モード」を有効にしたAuto Loaderを使用する。"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：Auto Loaderの「ファイル通知モード (cloudFiles.useNotifications = true)」を使用すると、初回起動時に既存の履歴ファイルをバックフィルとして自動的にリスト処理しつつ、以降の新規ファイルはクラウドのイベントサービス（Event Grid等）経由でプッシュ通知として受け取ります。これにより、数万件のファイルを抱えるバケットで毎回高コストなディレクトリスキャンを実行するオーバーヘッドを排除し、低遅延を実現します。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 21:\nデータエンジニアリングチームは、Unity Catalogに保存されているユーザーアクティビティイベントテーブルに取り組んでいます。クエリでは、user_id や event_date など、複数の列に対するフィルタがよく使用されます。\nコストのかかるテーブルスキャンを回避するために、チームはどのデータレイアウト手法を採用すべきでしょうか？",
+        options: [
+            "(A) user_id列にはパーティショニングを、event_date列にはZオーダーインデックスを適用してください。",
+            "(B) user_idに対してZオーダーインデックスを使用する",
+            "(C) event_date列に対してパーティショニングを使用してください。",
+            "(D) user_idとevent_dateの組み合わせに対してLiquid Clusteringを使用する"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：複数の列にまたがる検索条件が頻繁に使用される場合、特定の列への固定的なパーティショニングや単一のZオーダーよりも、両方の列をクラスタリングキーとして指定できる「Liquid Clustering」を使用するのが最も柔軟でスキャン回避に効果的です。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 22:\nデータエンジニアは、Lakeflowジョブの実行時間が本番環境で複数回実行されるうちに徐々に増加した理由を調査するよう依頼されました。エンジニアは、実行傾向を視覚化し、過去のジョブ実行時のメトリクスと比較できる機能を必要としています。どのオプションを選択すべきでしょうか？",
+        options: [
+            "(A) 実行履歴 (Run History)",
+            "(B) Catalog Explorer (カタログエクスプローラー)",
+            "(C) クエリ履歴 (Query History)",
+            "(D) ダッシュボード (Lakeflow Dashboard)"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：Databricks JobsのUIに備わっている「実行履歴 (Run / Job History)」タブ機能を使用すると、過去のジョブ実行時間やタスクメトリクスの推移をグラフで視覚的に比較・追跡でき、パフォーマンス低下の傾向を簡単に分析できます。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 23:\nIoTプラットフォームは、デバイスのテレメトリデータをブロンズテーブルに保存します。列 payload は、次のようなJSONデータを含む文字列(STRING)です。\n`{\"device_id\":\"A1\",\"temperature\":22.5,\"humidity\":60}`\nデータエンジニアは、Silverテーブルからフィールドを抽出して、効率的にクエリを実行できるようにする必要があります。\nどの2つのクエリがJSONから正しくデータを抽出しますか？（2つ選択してください）",
+        options: [
+            "(A) SELECT from_json(payload, 'device_id STRING...') AS parsed_payload FROM bronze_iot;",
+            "(B) SELECT payload:device_id AS device_id, payload:temperature AS temperature FROM bronze_iot;",
+            "(C) SELECT payload.device_id AS device_id, payload.temperature AS temperature FROM bronze_iot;",
+            "(D) SELECT json_extract(payload, 'device_id') AS device_id FROM bronze_iot;",
+            "(E) SELECT get_json_object(payload, '$.device_id') AS device_id, get_json_object(payload, '$.temperature') AS temperature FROM bronze_iot;"
+        ],
+        answerIndex: [1, 4],
+        explanation: "解答：(B), (E)\n\n解説：Databricks SQLにおいて、文字列型のJSONデータから直接特定のキーを抽出する正しいネイティブ構文は、コロン演算子を使用する `payload:key` の記法と、組み込み関数である `get_json_object(payload, '$.key')` の2つです。文字列型に対してドット表記（payload.key）は使用できません。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 24:\nデータエンジニアは、Lakeflow Connectを使用して、売上取引データをUnity Catalogテーブルに毎晩取り込むための標準コネクタを開発したいと考えています。エンジニアは、テーブル内の履歴データを30日間保持しつつ、繰り返しロードしても重複が発生しないようにする必要があります。\nデータエンジニアは、これらの要件を満たすためにどのコマンドを使用すればよいでしょうか？",
+        options: [
+            "(A) INSERT OVERWRITE",
+            "(B) COPY INTO",
+            "(C) MERGE INTO",
+            "(D) INSERT INTO"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：既存の履歴データを保持しつつ、対象のキーが既に存在する場合は更新し、存在しない場合は挿入する（重複を回避する）アップサート処理を行うには `MERGE INTO` コマンドを使用する必要があります。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 25:\nデータエンジニアは、宣言型自動化バンドル (DABs) を使用して、開発環境と本番環境にわたるワークフローを管理します。CI/CDプロセスでは、プルリクエストごとに開発環境におけるバンドル構成を検証する必要があります。本番環境へのマージ時には、システムは自動的に本番環境にデプロイする必要があります。\nこれらの要件を満たす行動の組み合わせはどれですか？",
+        options: [
+            "(A) PRパイプラインでは `databricks bundle deploy -t dev --verify` を実行し、本番環境では `databricks bundle deploy -t prod` を実行する。",
+            "(B) PRパイプラインでは `databricks bundle deploy -t dev` を実行し、本番環境で `databricks bundle run validate -t prod` を実行する。",
+            "(C) PRパイプラインでは `databricks bundle validate -t dev` を実行し、本番環境では `databricks bundle deploy -t prod` を実行する。",
+            "(D) PRパイプラインでは `databricks bundle run validate -t dev` を実行し、本番環境では `databricks bundle run deploy -t prod` を実行する。"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：CI/CDのプルリクエスト（PR）フェーズでは、構成が正しいかどうかをリソースをデプロイせずにテストする `databricks bundle validate` を実行するのがベストプラクティスです。そして、メインブランチ等へのマージが完了した後に、実際にリソースを作成する `databricks bundle deploy` を本番ターゲットに対して実行します。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 26:\n以下のうち、一般的なエンタープライズアプリケーションからUnity Catalogテーブルへの、ローコードで完全に管理されたデータ取り込みソリューションを提供するものはどれですか？",
+        options: [
+            "(A) Auto Loader (自動ローダー)",
+            "(B) Databricks Connect",
+            "(C) Lakeflow Connect マネージドコネクタ",
+            "(D) COPY INTO"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：Salesforce、Workday、ServiceNowなどの一般的なSaaSエンタープライズアプリケーションから、API連携のコードを書かずにUIベースでUnity Catalogへデータを取り込むフルマネージドサービスは「Lakeflow Connect」のマネージドコネクタです。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 27:\nデータエンジニアは、従業員を部署ごとにグループ化し、従業員の総給与と平均給与を計算する任務を負っています。彼らはPySparkのgroupByを使用し、各グループに複数の集計処理を適用したいと考えています。\n以下のコードスニペットを完成させてください。\n\nresult_df = df.groupBy(\"department\").____________(\n    sum(\"salary\").alias(\"total_salary\"),\n    avg(\"salary\").alias(\"average_salary\")\n)\n\nコードを完成させるには、どの関数を使用すればよいですか？",
+        options: [
+            "(A) filter",
+            "(B) withColumn",
+            "(C) agg",
+            "(D) select"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：PySparkにおいて、`groupBy` メソッドの後に、合計や平均など「複数の異なる集計関数」を同時に適用して新しい列を生成するためには、`agg()` (aggregate) メソッドを使用する必要があります。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 28:\nサプライチェーン企業のデータエンジニアリングチームは、Lakeflow Declarative Pipelines（旧Delta Live Tables）を使用して在庫データを管理しています。チームは、生データを格納する追記専用の inventory_raw テーブルを持っています。データエンジニアは、この生テーブルから「製品在庫レベルのほぼリアルタイムな変化」を継続的にキャプチャし、最新のステータスを保持する新しいテーブル inventory_latest を作成する任務を負っています。\n\ninventory_latest テーブルを実装するのに最も適したオブジェクトの種類は次のうちどれですか？",
+        options: [
+            "(A) ストリーミングビュー",
+            "(B) マテリアライズドビュー",
+            "(C) ストリーミングテーブル (Streaming Table)",
+            "(D) 一時ビュー"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：追加専用のソーステーブルから、ほぼリアルタイムで継続的に新しいレコードを読み取り、パイプラインの停止なしにインクリメンタル（増分的）にデータを処理して反映させるための最適なオブジェクトは「ストリーミングテーブル」です。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 29:\nLakeflow Jobsにおいて、運用上のオーバーヘッドとアイドル状態のクラスターコストの削減に役立つコンピューティングオプションはどれですか？",
+        options: [
+            "(A) SQLウェアハウス",
+            "(B) サーバーレスジョブコンピューティング (Serverless Job Compute)",
+            "(C) 従来のジョブコンピューティング (Classic Job Compute)",
+            "(D) 汎用コンピューティング (All-Purpose Compute)"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：Databricksの「サーバーレスジョブコンピューティング」を使用すると、クラスターのVMインスタンス管理、スケーリング設定、事前起動待ちといったインフラの運用オーバーヘッドが完全に排除されます。また、ジョブの実行に必要な時間（秒単位）のみ課金され、即座に終了するためアイドルコストが一切発生しません。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 30:\nデータエンジニアが、Databricks上で大きなファクトテーブルと小さなディメンションテーブルを結合するSparkジョブを最適化しています。結合パフォーマンスを向上させるため、Sparkが「最大 100 MB の小さなテーブル」をすべての実行エンジンに自動的に送信するように設定したいと考えています。どのような設定を行うべきでしょうか？",
+        options: [
+            "(A) spark.conf.set(\"spark.sql.autoBroadcastJoinThreshold\", 104857600)",
+            "(B) spark.conf.set(\"spark.executor.memory\", 104857600)",
+            "(C) spark.conf.set(\"spark.sql.shuffle.partitions\", 100)",
+            "(D) spark.conf.set(\"spark.sql.broadcastTimeout\", 100)"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：ブロードキャストハッシュ結合を自動的に適用するためのテーブルサイズの閾値（バイト単位）を制御するプロパティは `spark.sql.autoBroadcastJoinThreshold` です。100MBは `100 * 1024 * 1024 = 104,857,600` バイトであるため、この値を設定するのが正解です。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 31:\n本番環境のS3バケットには、毎日数千もの画像ファイルが様々な形式（.png, .jpg, .gif）で受信されています。データエンジニアは、以下のストリーミング取り込みスクリプトを修正し、.jpgファイルのみが処理されるようにするよう指示されました。\n\ndf = spark.readStream \\\n  .format(\"cloudFiles\") \\\n  .option(\"cloudFiles.format\", \"binaryFile\") \\\n  .option(\"_____________\", \"*.jpg\") \\\n  .load(\"s3://shop/raw/invoices/\")\n\n指定された要件を満たすために、空欄に正しく記入できる選択肢はどれですか？",
+        options: [
+            "(A) cloudFiles.fileExtension",
+            "(B) fileExtension",
+            "(C) pathGlobFilter",
+            "(D) cloudFiles.pathGlobFilter"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：Auto Loader（cloudFiles）において、指定した拡張子やファイル名パターン（ワイルドカード）に一致する入力ファイルだけをフィルタリングして読み込むための正しいオプション名は `pathGlobFilter` です。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 32:\n以下の構造化ストリーミングクエリを前提とします。\n\n( spark.readStream\n    .table(\"cleanedOrders\")\n    .groupBy(\"productCategory\")\n    .agg(sum(\"totalWithTax\"))\n  .writeStream\n    .outputMode(\"complete\")\n    .table(\"aggregatedOrders\") )\n\nメダリオンアーキテクチャにおけるこのクエリの目的を最もよく表しているのは、次のうちどれですか？",
+        options: [
+            "(A) このクエリは、ブロンズテーブルからシルバーテーブルへのホップを実行しています。",
+            "(B) このクエリは、シルバーレイヤーからゴールドテーブルへのホップを実行しています。",
+            "(C) このクエリは、ゴールドテーブルから本番アプリケーションへのデータ転送を実行します。",
+            "(D) このクエリは、生データをブロンズテーブルに取り込んでいます。"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：このクエリは、クレンジング済みのデータ（cleanedOrders: シルバー）を元に、カテゴリごとの合計額というビジネスレベルの集計処理（agg(sum(...))）を行い、集約テーブル（aggregatedOrders: ゴールド）に書き込んでいます。これは典型的なシルバーからゴールドへのデータ変換パイプラインです。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 33:\nデータエンジニアは、既存のDeltaテーブル（usersという名前）において、年齢が18歳以上であることを強制的に設定する必要がある。\nどのSQL文がこの制約を正しく追加しますか？",
+        options: [
+            "(A) ADD CONSTRAINT eligible_adult ON TABLE users CHECK (age > 18)",
+            "(B) ALTER TABLE users ALTER COLUMN age SET (age > 18);",
+            "(C) ALTER TABLE users ADD CONSTRAINT eligible_adult CHECK (age > 18)",
+            "(D) ALTER TABLE users CHECK (age > 18)"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：Delta Lakeでテーブル内の特定の条件（ブール式）を強制するCHECK制約を追加する正しい標準SQL構文は `ALTER TABLE テーブル名 ADD CONSTRAINT 制約名 CHECK (条件)` です。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 34:\n次のどの手法を使用すれば、Auto Loader が取り込みの進行状況を追跡し、検出されたファイルのメタデータを保存できますか？",
+        options: [
+            "(A) Checkpointing (チェックポイント)",
+            "(B) COPY INTO",
+            "(C) Photon engine",
+            "(D) Watermarking (ウォーターマーク)"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：Auto Loaderは、内部のファイル追跡メタデータとストリームのオフセット情報を「チェックポイント (Checkpoint Location)」に保存します。これにより、ジョブが失敗して再起動しても、どこまでファイルを処理したかを正確に記憶しており「厳密に1回（Exactly-Once）」の処理を保証します。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 35:\nDatabricksワークスペースの Web アプリケーションは、以下のどの場所にホストされていますか？",
+        options: [
+            "(A) Databricksが管理するクラスター",
+            "(B) コントロールプレーン (Control Plane)",
+            "(C) データプレーン (Data Plane)",
+            "(D) 顧客クラウドアカウント"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：DatabricksのWebアプリケーションUI、ワークフロー（ジョブ）スケジューラー、メタストアの管理サービスなどはすべて、Databricks自身がセキュアに管理・ホストする「コントロールプレーン」内に配置されています。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 36:\nデータエンジニアは、Lakeflow Spark Declarative Pipeline（旧Delta Live Tables）で次のクエリを実行します。\n\nCREATE STREAMING TABLE sales_silver\nAS SELECT store_id, total + tax AS total_after_tax FROM sales_bronze\n\nこのクエリにエラーがあるため、パイプラインの起動に失敗しました。DLTパイプラインを正常に起動するために、このクエリに対して以下のどの変更を加えるべきですか？",
+        options: [
+            "(A) FROM STREAM(LIVE.sales_bronze) を使用する",
+            "(B) FROM STREAM(sales_bronze) を使用する",
+            "(C) FROM STREAMING(sales_bronze) を使用する",
+            "(D) FROM STREAMING sales_bronze を使用する"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：DLTパイプラインにおいて、他のテーブルからデータを「ストリーミング読み取り」としてソース指定する場合、SQL文の FROM 句内で対象テーブルを `STREAM()` 関数でラップする必要があります。これによりシステムは増分処理として認識します。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 37:\nGitフォルダ内で実行できる機能は次のうちどれですか？",
+        options: [
+            "(A) ブランチを削除する",
+            "(B) 新しいリモートGitリポジトリを作成する",
+            "(C) プルリクエストを作成する",
+            "(D) リモートのGitリポジトリから変更を取り込む (Pull)"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：DatabricksのGitフォルダ内で直接実行できるのは、コミット、プッシュ、新しいブランチの作成、そしてリモートの最新の変更をローカルに反映させるための「Pull（変更の取り込み）」です。PRの作成やブランチの削除はプロバイダー側（GitHub等）で行う必要があります。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 38:\nデータエンジニアリングチームは、以下のコードを使用して、クラウドストレージからJSONログをDeltaテーブルに取り込んでいます。\n\nCOPY INTO target_table\nFROM 'abfss://...'\nFILEFORMAT = JSON\n____________;\n\nソースには古いファイルと新しく更新されたファイルの両方が含まれており、チームは「最終更新日時」でフィルタリングして、最新のファイルのみを読み込みたいと考えています。空欄に正しく記入できる選択肢はどれですか？",
+        options: [
+            "(A) FORMAT_OPTIONS (file.modification_time > 'ts')",
+            "(B) FORMAT_OPTIONS ('modificationTime' > 'ts')",
+            "(C) FORMAT_OPTIONS ('modifiedAfter' = 'ts')",
+            "(D) FORMAT_OPTIONS (_metadata.file_modification_time > 'ts')"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：`COPY INTO` コマンドで特定の日時以降に変更されたファイルのみをターゲットにするには、`FORMAT_OPTIONS ('modifiedAfter' = 'タイムスタンプ')` という専用のフィルタリングオプションを指定するのが正しい構文です。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 39:\nデータエンジニアは、時間の経過とともに新しいフィールドが追加される可能性のあるJSONファイルを取り込むために、Auto Loaderを使用する必要があります。処理中に新しい列が検出された際に、テーブルスキーマが進化するように、オートローダーはどのように構成すればよいでしょうか？",
+        options: [
+            "(A) オートローダーは、処理中に入力ファイルに新しい列が追加されたことを検出できません。",
+            "(B) cloudFiles.schemaLocationを設定し、自動スキーマ進化をサポートするためにcloudFiles.schemaEvolutionMode=addNewColumnsを設定します。",
+            "(C) 新しい列とそのデータ型を自動的に検出するには、inferColumnTypesをtrueに設定してください。",
+            "(D) 書き込み時に Delta Lake のマージスキーマを有効にするには、mergeSchema を true に設定します。"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：Auto Loaderでスキーマの自動進化を有効にするには、スキーマの履歴を追跡・保存するディレクトリである `cloudFiles.schemaLocation` を必ず指定した上で、新しい列を追加する動作モード `schemaEvolutionMode = \"addNewColumns\"` を設定する必要があります。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 40:\nデータエンジニアが、sales_job というキーを持つジョブリソースを含むバンドルをデプロイし、それをターゲットワークスペースで実行したいと考えています。データエンジニアは、この目的を達成するためにどの Databricks CLI コマンドを使用できますか？",
+        options: [
+            "(A) databricks bundle trigger sales_job",
+            "(B) databricks bundle deploy --run sales_job",
+            "(C) databricks bundle execute sales_job",
+            "(D) databricks bundle run sales_job"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：Databricks Asset Bundlesで構成ファイルをデプロイした後、そのバンドル内で定義された特定のジョブやパイプラインを手動でトリガーして実行させるコマンドは `databricks bundle run <リソースキー>` です。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 41:\nデータエンジニアがDatabricks SQLパイプラインで受信トランザクションデータを検証しています。一部のレコードの数値フィールドに予期しない記号が含まれています。エンジニアは次のクエリを実行します。\n\nSELECT COALESCE(TRY_CAST(\"100$\" AS INT), 0)\n\nこのクエリの結果を最も適切に表しているのは、次のうちどれですか？",
+        options: [
+            "(A) NULL",
+            "(B) 0",
+            "(C) 100",
+            "(D) エラーが発生しました"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：`TRY_CAST(\"100$\" AS INT)` は無効な文字が含まれているため、エラーを出さずに安全に `NULL` を返します。外側にある `COALESCE` 関数は、NULLを受け取ると次の引数である `0` をフォールバック値として返すため、最終結果は `0` になります。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 42:\nデータエンジニアが、本番環境でコマンドを使用して外部のDeltaテーブルを管理対象テーブルに変換します。ALTER TABLE ... SET MANAGED。変換が完了すると、ストリーミングクエリが次のエラーで新しいデータを受信しなくなります。\n\n「DELTA_STREAMING_INTERRUPTED_BY_MANAGED_TABLE_CONVERSION: テーブルが Unity カタログ管理テーブルに変換されました。データの一貫性を確保するため、ストリームは停止されました。」\n\nデータエンジニアはこの問題をどのように解決すべきでしょうか？",
+        options: [
+            "(A) ストリームを再起動すると、変換されたテーブルを使用して、最後にコミットされたオフセットから自動的に再開されます。",
+            "(B) 変換後のテーブルに対してコマンドを実行しVACUUM、古いファイルを削除してストリーミング状態を復元します。",
+            "(C) REPAIR TABLE コマンドを実行してチェックポイントのオフセットを更新します。",
+            "(D) UNSET MANAGED を実行して外部テーブルにロールバックします。"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：外部から管理対象テーブルへの移動中、Databricksはデータ破壊を防ぐためアクティブなストリームを意図的に停止させます。メタデータの移行完了後にストリームを同じ設定で再起動するだけで、システムは自動的に新しいパスを認識し、チェックポイント情報から安全に処理を再開します。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 43:\n以下の空欄を埋めて、配列列 students から「3つ未満のコースに登録している学生」のみを残した配列を取得してください。\n\nSELECT faculty_id, students, ___________ AS few_courses_students FROM faculties",
+        options: [
+            "(A) TRANSFORM (students, i -> i.total_courses < 3)",
+            "(B) TRANSFORM (students, total_courses < 3)",
+            "(C) FILTER (students, i -> i.total_courses < 3)",
+            "(D) FILTER (students, total_courses < 3)"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：配列（ARRAY）の中から特定の条件（ラムダ関数）に一致する要素だけを抽出して新しい配列を生成するSparkの組み込み高階関数は `FILTER` です。`TRANSFORM` は配列の全要素に対して計算を行い、要素の値を変更する際に使用します。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 44:\n以下のSQLコマンドのうち、この新しい行を既存のDeltaテーブル users に追加するものはどれですか？\n\n|user_id | name | age |\n|--------|------|-----|\n|0015    | Adam | 23  |",
+        options: [
+            "(A) INSERT VALUES (“0015”, “Adam”, 23) INTO users",
+            "(B) INSERT INTO users VALUES (“0015”, “Adam”, 23)",
+            "(C) APPEND VALUES (“0015”, “Adam”, 23) INTO users",
+            "(D) APPEND INTO users VALUES (“0015”, “Adam”, 23)"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：既存のテーブルに新しい単一のレコード（行）を明示的に挿入するための正しい標準SQL構文は `INSERT INTO テーブル名 VALUES (値1, 値2...)` です。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 45:\nデータエンジニアは、スケジュールされたPythonノートブックを1時間ごとに実行する必要があります。この作業では、比較的少量のデータを処理します。実行環境は効率的で、クラスタの事前ウォームアップを必要とせず、一貫性のある信頼性の高いパフォーマンスを提供する必要があります。\nこれらの要件を考慮すると、このジョブを実行するために推奨されるコンピューティングオプションはどれですか？",
+        options: [
+            "(A) サーバーレスジョブコンピューティング",
+            "(B) クラシックジョブクラスター (Classic Job Compute)",
+            "(C) サーバーレスSQLウェアハウス",
+            "(D) 汎用クラスター (All-Purpose Compute)"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：事前起動（ウォームアップ）の待ち時間がなく即座にリソースが割り当てられ、効率的にスクリプトを実行してすぐに終了する環境が必要な場合、インフラストラクチャが完全に抽象化・管理された「サーバーレスジョブコンピューティング」が最適です。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 46:\nデータエンジニアリングチームは、Unity Catalog の employees テーブルに行フィルタリングを適用して、人事チーム (hr_team) のメンバーのみがすべてのレコードにアクセスできるようにし、他のメンバーにはフランス (FR) リージョンのレコードのみが表示されるようにしたいと考えています。これを実現するために、彼らは次のユーザー定義関数を実装しました。\n\nCREATE FUNCTION fr_filter(region STRING) RETURN IF(IS_ACCOUNT_GROUP_MEMBER('hr_team'), true, region = 'FR');\n\nこの機能をテーブルの行フィルターとして適用するために使用できるコマンドは次のうちどれですか？",
+        options: [
+            "(A) ALTER TABLE employees SET ROW FILTER fr_filter ON (region);",
+            "(B) ALTER TABLE employees SET ROW FILTER fr_filter;",
+            "(C) SET ROW FILTER fr_filter ON TABLE employees TO COLUMN region",
+            "(D) ALTER TABLE employees ALTER COLUMN region SET ROW FILTER fr_filter;"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：作成した関数をテーブル全体の行アクセスを制御する行フィルター（ROW FILTER）としてアタッチする正しい構文は `ALTER TABLE <テーブル名> SET ROW FILTER <関数名> ON (<入力列のリスト>)` です。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 47:\nデータエンジニアは、カタログエクスプローラーを使用して権限を以下のように管理します。\n\n1. カタログ「販売」に対して USE CATALOG を小売アナリストに付与\n2. スキーマ「トランザクション」に対して USE SCHEMA を小売アナリストに付与\n3. テーブル「daily_revenue」に対して SELECT を小売アナリストに付与\n\nこれらの行動の結果を正しく説明しているのは、次のうちどれですか？",
+        options: [
+            "(A) 小売アナリストグループは daily_revenue からデータを読み取ることができますが、販売カタログまたはトランザクションスキーマ内のオブジェクトを作成、変更、または削除することはできません。",
+            "(B) USE SCHEMA によってスキーマ内のすべてのテーブルに対する SELECT 権限が自動的に付与されるため、小売アナリストグループはトランザクションスキーマ内のすべてのテーブルに対してクエリを実行できるようになります。",
+            "(C) 小売アナリストグループは、USE CATALOGとUSE SCHEMAの両方の権限が付与されているため、トランザクションスキーマに新しいテーブルを作成できるようになります。",
+            "(D) 権限は、データエンジニアがSQLエディターで生成されたGRANTコマンドを手動で実行するまで有効になりません。"
+        ],
+        answerIndex: 0,
+        explanation: "解答：(A)\n\n解説：上位コンテナの `USE` 権限と、対象テーブルの `SELECT` 権限のみが与えられているため、対象テーブルからのデータ読み取りは可能ですが、新しいテーブルの作成（CREATE TABLE）やデータの変更（MODIFY）などの書き込み権限は一切付与されていません。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 48:\nデータエンジニアが、PostgreSQLデータベースからデータを取り込むためのLakeflow Spark Declarative Pipeline（SDP）を構築しており、ほぼリアルタイムの分析のために「ストリーミングテーブル」を使用したいと考えています。エンジニアは、ストリーミングテーブルを使用すれば、JDBCソースからの継続的なデータ取り込みが直接可能になると考えています。\nこの仮定に関して、正しい記述はどれですか？",
+        options: [
+            "(A) PostgreSQLは、ストリーミングテーブルでKafkaのように直接利用できます。",
+            "(B) PostgreSQLへのデータ取り込みは、バッチJDBC経由でのみサポートされており、ネイティブストリーミングはサポートされていません。",
+            "(C) SDPでは、JDBCソースは自動的にストリーミングソースとして扱われます。",
+            "(D) ストリーミングテーブルは、PostgreSQLからのJDBCによる継続的なデータ取り込みをサポートします。"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：標準的なSparkのJDBCコネクタは静的なテーブルのバッチ読み取り（スナップショット）としてのみ機能し、Kafkaのように未処理の差分ログを継続的にサブスクライブするストリーミングソースとして直接扱うことはできません。（リアルタイム同期にはLakeflow ConnectのCDC機能などが必要です）"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 49:\nデータエンジニアリングチームは、上流のデータ取り込みパイプラインによってデルタテーブルが更新されるたびに自動的に更新されるレポートジョブを管理しています。その目的は、テーブルの変更に対応し、新しいデータが到着した際に下流のレポートが常に一貫性を保ち、最新の状態に維持されるようにすることです。\nこの作業には、チームはどのようなトリガー設定を使用すべきでしょうか？",
+        options: [
+            "(A) ファイル到着トリガー",
+            "(B) スケジュールされたトリガー",
+            "(C) テーブル更新トリガー (Table Update Trigger)",
+            "(D) 連続トリガー"
+        ],
+        answerIndex: 2,
+        explanation: "解答：(C)\n\n解説：特定のDeltaテーブル（上流）に新しいデータの追加や更新（INSERT, UPDATEなど）が発生したことを検知し、それをイベントとして即座に下流のレポートジョブを自動実行させるには「テーブル更新トリガー」が最適です。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 50:\nデータエンジニアが、ALTER TABLE ... SET MANAGED コマンドを使用して外部テーブルを管理対象テーブルに変換しました。\nこの変換において SET MANAGED を用いる主な利点は何ですか？（2つ選択してください）",
+        options: [
+            "(A) 変換された管理対象テーブルを外部テーブルにロールバックすることをサポートします。",
+            "(B) 変換後、ストレージコストを節約するために、元の外部ストレージの場所を即座に削除します。",
+            "(C) パスベースの読み書きをリダイレクトすることで、変換後も既存コードが機能するようにします。",
+            "(D) 変換後も、読み取りと書き込みの両方において、元の外部ロケーションを唯一の真の情報源として引き続き使用します。",
+            "(E) 管理対象ロケーションと外部ロケーションの両方を並行して同期し、変換後の二重書き込みの一貫性をサポートします。"
+        ],
+        answerIndex: [0, 2],
+        explanation: "解答：(A), (C)\n\n解説：`SET MANAGED` でテーブルを管理状態に変換する大きなメリットは2点あります。1つ目は、問題があれば `UNSET MANAGED` で安全に元の外部テーブル状態に「ロールバック」できること。2つ目は、過去の外部パスを参照している既存のコードからの読み書きをシステムが自動的に新しい管理対象パスへ「リダイレクト」し、コードの修正なく稼働を継続できることです。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 51:\n財務データアナリストは、Unity Catalog スキーマ enterprise.reporting 内の既存および将来のすべてのテーブルへの読み取り専用アクセスを必要とします。アクセスはこのスキーマのみに限定され、エンタープライズカタログ内の他のスキーマには権限が付与されてはなりません。\nどのSQLコマンドを使えば、このアクセス権を正しく付与できますか？",
+        options: [
+            "(A) GRANT BROWSE ON SCHEMA enterprise.reporting TO finance-analyst;\nGRANT USE SCHEMA ON SCHEMA enterprise.reporting TO finance-analyst;\nGRANT USE CATALOG ON CATALOG enterprise TO finance-analyst;",
+            "(B) GRANT SELECT ON CATALOG enterprise TO finance-analyst;\nGRANT USE SCHEMA ON CATALOG enterprise TO finance-analyst;\nGRANT USE CATALOG ON CATALOG enterprise TO finance-analyst;",
+            "(C) GRANT USE SCHEMA ON SCHEMA enterprise.reporting TO finance-analyst;\nGRANT USE CATALOG ON CATALOG enterprise TO finance-analyst;",
+            "(D) GRANT SELECT ON SCHEMA enterprise.reporting TO finance-analyst;\nGRANT USE SCHEMA ON SCHEMA enterprise.reporting TO finance-analyst;\nGRANT USE CATALOG ON CATALOG enterprise TO finance-analyst;"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：特定のスキーマ内の「既存および将来作成されるすべてのテーブル」への読み取り権限を一括で付与するには、スキーマレベルに対して直接 `GRANT SELECT` を実行します。併せて親コンテナを通過するための `USE SCHEMA` と `USE CATALOG` も付与する構成が正解です。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 52:\nデータエンジニアリングチームが、Databricks SQLで再利用可能な製品フィルタリングクエリを作成しています。このクエリは、SQLロジックを変更することなく異なる値を渡すことができるように、「pid」という名前付きパラメータを使用して、product_idの実行時入力値を受け入れる必要があります。\n名前付きパラメータを正しく定義および使用するクエリはどれですか？",
+        options: [
+            "(A) SELECT * FROM products WHERE product_id = ${var.pid};",
+            "(B) SELECT * FROM products WHERE product_id = $pid;",
+            "(C) SELECT * FROM products WHERE product_id = pid;",
+            "(D) SELECT * FROM products WHERE product_id = :pid;"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：Databricks SQLにおいて、ダッシュボードやクエリエディタで動的に値を注入できる「名前付きパラメータ（Named Parameter）」の正しい構文は、変数名の先頭にコロン（`:`）を付ける `:pid` の形式です。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 53:\n「統制タグ (Tag) を使用して行フィルタと列マスクを動的に適用するメカニズム。単一のカタログレベルの定義により、テーブルごとの設定なしに、現在および将来のすべてのテーブルに自動的に適用されます。」\n上記の記述で説明されているUnityカタログの機能は次のうちどれですか？",
+        options: [
+            "(A) 予測最適化",
+            "(B) Liquid Clustering (リキッドクラスタリング)",
+            "(C) 動的なビュー",
+            "(D) 属性ベースアクセス制御 (ABAC) ポリシー"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：特定のタグ（例：pii=true）が付与された列やテーブルに対して、自動的かつ大規模に行フィルタや列マスクを伝播・適用させる高度なセキュリティ管理モデルを「属性ベースアクセス制御（ABAC）」と呼びます。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 54:\nデータエンジニアは、 db_hrという名前のカスタムロケーションスキーマを持っており、このスキーマが基盤となるストレージのどこ（ファイルパス）に作成されたのかを知りたいと考えています。\nデータエンジニアがこのタスクを完了するために使用できるコマンドは次のうちどれですか？",
+        options: [
+            "(A) DESCRIBE EXTENDED db_hr",
+            "(B) DESCRIBE db_hr",
+            "(C) SELECT location FROM db_hr.db",
+            "(D) DESCRIBE DATABASE db_hr"
+        ],
+        answerIndex: 3,
+        explanation: "解答：(D)\n\n解説：スキーマ（データベース）に関連付けられた物理的なストレージロケーション（URI）などのメタデータを表示するには `DESCRIBE DATABASE スキーマ名` (または `DESCRIBE SCHEMA スキーマ名`) を使用します。"
+    },
+    {
+        course: "exam4",
+        category: "模擬試験",
+        question: "問題 55:\nDatabricks SQLで利用できるコンピューティングリソースは次のうちどれですか？",
+        options: [
+            "(A) マルチノードクラスタ",
+            "(B) SQLウェアハウス",
+            "(C) シングルノードクラスタ",
+            "(D) SQLエンジン"
+        ],
+        answerIndex: 1,
+        explanation: "解答：(B)\n\n解説：Databricks SQL環境内で、クエリの実行やダッシュボードの更新に割り当てられる専用の最適化されたコンピューティングリソースは「SQLウェアハウス (SQL Warehouse)」と呼ばれます。"
     }
 ];
