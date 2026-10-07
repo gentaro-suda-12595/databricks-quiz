@@ -2037,11 +2037,10 @@ const quizData = [
             "(B) アナリストグループには、bank_catalog に対する USE CATALOG権限がありません。",
             "(C) アナリストグループは、fraud_schemaに対する USE SCHEMA権限を持っていません。",
             "(D) アナリストグループには、bank_catalogに対するSELECT権限がありません。",
-            "(E) データエンジニアはalert_casesテーブルの所有者ではありません。",
-            "(F) (B)と(C)の両方"
+            "(E) データエンジニアはalert_casesテーブルの所有者ではありません。"
         ],
-        answerIndex: 5,
-        explanation: "解答：(F) ※本来はBとCの複数選択\n\n解説：Databricks Unity Catalogでは、権限はカタログ->スキーマ->オブジェクトという厳密な階層で動作します。オブジェクトを正常にクエリするには、プリンシパルは、オブジェクトレベルの権限（テーブルに対するSELECT権限）を持っているだけでなく、そのオブジェクトのパスにあるすべての親コンテナーに対して明示的なトラバーサル権限も持っている必要があります。\n・USE CATALOG：特定のカタログに含まれるオブジェクトを閲覧および操作するために必要です。\n・USE SCHEMA：この特定のスキーマに含まれるオブジェクトを走査および操作するために必要です。\nデータエンジニアがテーブルレベルの権限付与のみを実行したため、親トラバーサル権限が付与されるまで、アナリストはINSUFFICIENT_PERMISSIONSエラーを受け取ります。"
+        answerIndex: [1, 2],
+        explanation: "解答：(B), (C)\n\n解説：Databricks Unity Catalogでは、権限はカタログ->スキーマ->オブジェクトという厳密な階層で動作します。オブジェクトを正常にクエリするには、プリンシパルは、オブジェクトレベルの権限（テーブルに対するSELECT権限）を持っているだけでなく、そのオブジェクトのパスにあるすべての親コンテナーに対して明示的なトラバーサル権限も持っている必要があります。\n・USE CATALOG：特定のカタログに含まれるオブジェクトを閲覧および操作するために必要です。\n・USE SCHEMA：この特定のスキーマに含まれるオブジェクトを走査および操作するために必要です。\nデータエンジニアがテーブルレベルの権限付与のみを実行したため、親トラバーサル権限が付与されるまで、アナリストはINSUFFICIENT_PERMISSIONSエラーを受け取ります。"
     },
     {
         course: "exam1",
@@ -2234,11 +2233,10 @@ const quizData = [
             "(B) 書き込み時にデータを自動的に暗号化し、機密性の高い列をマスキングすることで、データプライバシーを強化します。",
             "(C) テーブル上でメンテナンス作業を自動的に実行することで、メンテナンスを簡素化します。",
             "(D) テーブル列の欠損値を自動的に予測することで、データプロファイリングの精度を向上させます。",
-            "(E) テーブルにデータが書き込まれる際に統計情報を収集することで、クエリのパフォーマンスを向上させます。",
-            "(F) (C)と(E)の両方"
+            "(E) テーブルにデータが書き込まれる際に統計情報を収集することで、クエリのパフォーマンスを向上させます。"
         ],
-        answerIndex: 5,
-        explanation: "解答：(F) ※本来はCとEの複数選択\n\n解説：Databricksの予測最適化 (Predictive Optimization) は、Unity Catalogの管理対象テーブルに対して以下の利点を提供します。\n・VACUUM、OPTIMIZE、ANALYZEなどのバックグラウンドメンテナンスタスクを最適に自動実行してメンテナンスを簡素化します。\n・データの書き込み時にテーブル統計情報を自動収集し、クエリ最適化ツールがより効率的な実行計画を立てられるようにすることでパフォーマンスを向上させます。"
+        answerIndex: [2, 4],
+        explanation: "解答：(C), (E)\n\n解説：Databricksの予測最適化 (Predictive Optimization) は、Unity Catalogの管理対象テーブルに対して以下の利点を提供します。\n・VACUUM、OPTIMIZE、ANALYZEなどのバックグラウンドメンテナンスタスクを最適に自動実行してメンテナンスを簡素化します。\n・データの書き込み時にテーブル統計情報を自動収集し、クエリ最適化ツールがより効率的な実行計画を立てられるようにすることでパフォーマンスを向上させます。"
     },
     {
         course: "exam1",
@@ -2275,11 +2273,10 @@ const quizData = [
             "(B) データベースコネクタ (Database connectors)",
             "(C) COPY INTO",
             "(D) CREATE TABLE AS (CTAS)",
-            "(E) Software as a Service (SaaS) コネクタ",
-            "(F) (B)と(E)の両方"
+            "(E) Software as a Service (SaaS) コネクタ"
         ],
-        answerIndex: 5,
-        explanation: "解答：(F) ※本来はBとEの複数選択\n\n解説：Databricks Lakeflow Connectにおいて、「マネージドコネクタ（ノーコード管理対象コネクタ）」として分類されるのは、Salesforceなどの SaaSコネクタ と、PostgreSQLなどの データベースコネクタ です。これらはインフラストラクチャやAPIのページネーションなどをフルマネージドで処理します。一方、Auto LoaderやCOPY INTOは、コードベースのクラウドオブジェクトストレージコネクタや従来のSQLコマンドです。"
+        answerIndex: [1, 4],
+        explanation: "解答：(B), (E)\n\n解説：Databricks Lakeflow Connectにおいて、「マネージドコネクタ（ノーコード管理対象コネクタ）」として分類されるのは、Salesforceなどの SaaSコネクタ と、PostgreSQLなどの データベースコネクタ です。これらはインフラストラクチャやAPIのページネーションなどをフルマネージドで処理します。一方、Auto LoaderやCOPY INTOは、コードベースのクラウドオブジェクトストレージコネクタや従来のSQLコマンドです。"
     },
     {
         course: "exam1",
@@ -2810,11 +2807,10 @@ const quizData = [
             "(B) テーブル名、設定、権限、ビューなど、テーブルの構成はそのまま維持されます。",
             "(C) 実行ごとに、ソースからターゲットへの変更を段階的に同期します。",
             "(D) 最新のテーブルバージョンのみをコピーすることで、移行中のダウンタイムを最小限に抑えます。",
-            "(E) 変換後、ストレージコストを節約するために、元の外部ストレージの場所を即座に削除します。",
-            "(F) (A)と(B)の両方"
+            "(E) 変換後、ストレージコストを節約するために、元の外部ストレージの場所を即座に削除します。"
         ],
-        answerIndex: 5,
-        explanation: "解答：(F) ※本来はAとBの複数選択\n\n解説：`ALTER TABLE ... SET MANAGED` の最大の利点は、テーブルの履歴（タイムトラベル）が完全に保持され `UNSET MANAGED` で安全にロールバックできること、および、Unity Catalogの権限、タグ、関連ビューなどのメタデータ構成がすべてそのまま維持されることです。"
+        answerIndex: [0, 1],
+        explanation: "解答：(A),(B)\n\n解説：`ALTER TABLE ... SET MANAGED` の最大の利点は、テーブルの履歴（タイムトラベル）が完全に保持され `UNSET MANAGED` で安全にロールバックできること、および、Unity Catalogの権限、タグ、関連ビューなどのメタデータ構成がすべてそのまま維持されることです。"
     },
     {
         course: "exam2",
@@ -3150,11 +3146,10 @@ const quizData = [
             "(B) Databricks Runtime 11.3 LTS未満のクラシックコンピューティング",
             "(C) 「分離共有なし (No Isolation Shared)」アクセスモードで構成されたクラシックコンピューティング",
             "(D) Databricks Runtime 10.4 LTS未満を実行するクラシックコンピューティング",
-            "(E) SQLウェアハウスコンピューティング",
-            "(F) (A)と(E)の両方"
+            "(E) SQLウェアハウスコンピューティング"
         ],
-        answerIndex: 5,
-        explanation: "解答：(F) ※本来はAとEの複数選択\n\n解説：Unity Catalogのデータに安全にアクセスするには、SQL Warehouse を使用するか、従来のクラスターを「標準 (Shared)」または「専用 (Single User)」のアクセスモードで構成する必要があります。「分離なし (No Isolation Shared)」モードや、要件を満たさない古いDatabricks RuntimeバージョンではUnity Catalogを利用できません。"
+        answerIndex: [0, 4],
+        explanation: "解答：(A), (E)\n\n解説：Unity Catalogのデータに安全にアクセスするには、SQL Warehouse を使用するか、従来のクラスターを「標準 (Shared)」または「専用 (Single User)」のアクセスモードで構成する必要があります。「分離なし (No Isolation Shared)」モードや、要件を満たさない古いDatabricks RuntimeバージョンではUnity Catalogを利用できません。"
     },
     {
         course: "exam2",
