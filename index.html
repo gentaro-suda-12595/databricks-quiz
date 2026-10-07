@@ -229,17 +229,37 @@
             "タスク値": "https://docs.databricks.com/aws/ja/jobs/task-values",
             "Liquid Clustering": "https://docs.databricks.com/aws/ja/tables/clustering"
         };
+        
+        // キーワードを文字数が長い順にソート（例: "Bundles" を "Bundle" より先に判定して誤爆を防ぐ）
+        const keywords = Object.keys(officialLinks).sort((a, b) => b.length - a.length);
+        
+        // 正規表現の特殊文字をエスケープ
+        const escapedKeywords = keywords.map(kw => kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+        
+        // 1回の処理で全てのキーワードを検索する正規表現を作成（関数外で作ることで動作を高速化）
+        const keywordRegex = new RegExp(`(${escapedKeywords.join('|')})`, "gi");
+
+        // 大文字小文字の違いを吸収して高速にURLを取得できる裏辞書を準備
+        const lowerCaseLinks = {};
+        for (const [key, url] of Object.entries(officialLinks)) {
+            lowerCaseLinks[key.toLowerCase()] = url;
+        }
 
         function addLinksToText(text) {
             if (!text) return "";
+            
+            // XSS対策（HTMLタグの無効化）
             let htmlText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            for (const [keyword, url] of Object.entries(officialLinks)) {
-                const regex = new RegExp(keyword, "gi");
-                htmlText = htmlText.replace(regex, `<a href="${url}" target="_blank" class="doc-link">$&</a>`);
-            }
+            
+            // 1回のパスで安全にリンク化（生成済みの<a>タグを壊さない）
+            htmlText = htmlText.replace(keywordRegex, (match) => {
+                const url = lowerCaseLinks[match.toLowerCase()];
+                return `<a href="${url}" target="_blank" class="doc-link">${match}</a>`;
+            });
+            
             return htmlText;
         }
-
+        
         let userStats = {}; 
         let currentSessionIndices = []; 
         let currentQuestionIndex = 0;   
