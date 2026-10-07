@@ -426,7 +426,7 @@
             // 複数選択の場合はヒントを出す
             let qText = currentQ.question;
             if (isMulti) {
-                qText += `\n<span style="color:#e67e22; font-size:0.9em;">※複数選択（${currentQ.answerIndex.length}つ選んでください）</span>`;
+                qText += `\n※複数選択（${currentQ.answerIndex.length}つ選んでください）</span>`;
             }
             questionText.innerHTML = addLinksToText(qText);
             
