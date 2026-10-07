@@ -3131,7 +3131,7 @@ const quizData = [
     {
         course: "exam2",
         category: "模擬試験",
-        question: "問題 35:\nデータエンジニアが、失敗を伴いながらも成功した以下のジョブ実行について調査します。\nTask_A(成功) --\n             |→ Task_C(成功) \nTask_B(失敗) --\n\nすべてのタスクが成功したわけではないにもかかわらず、ジョブが正常に実行された理由を説明しているのは、次のうちどれですか？",
+        question: "問題 35:\nデータエンジニアが、失敗を伴いながらも成功した以下のジョブ実行について調査します。\nTask_A(成功) --\n                  |→ Task_C(成功) \nTask_B(失敗) --\n\nすべてのタスクが成功したわけではないにもかかわらず、ジョブが正常に実行された理由を説明しているのは、次のうちどれですか？",
         options: [
             "(A) タスク A は run_if: 少なくとも 1 つの成功 に設定されている",
             "(B) タスク B は run_if: 少なくとも 1 つの失敗 に設定されている",
@@ -3289,7 +3289,7 @@ const quizData = [
     {
         course: "exam2",
         category: "模擬試験",
-        question: "問題 47:\n以下の2つの表が与えられた場合：\n\nstudents (student_id, name, age) \nenrollments (course_id, student_id)\n\n以下のクエリが「コースに登録していない学生(John)を含めすべての学生を表示し、登録がない場合はNULLを表示する」結果を返すように、空欄を埋めてください。\n\nSELECT students.name, students.age, enrollments.course_id\nFROM students\n_____________ enrollments\nON students.student_id = enrollments.student_id",
+        question: "問題 47:\n以下の2つの表が与えられた場合：\n\nstudents\n|student_id|name |age|\n|U0001     |Adam |23 |\n|U0002     |Sarah|19 |\n|U0003     |John |36 |\n\nenrollments\n|course_id|student_id|\n|C0055         |U0001          |\n|C0066         |U0001          |\n|C0077         |U0002          |\n\n以下のクエリが「コースに登録していない学生(John)を含めすべての学生を表示し、登録がない場合はNULLを表示する」結果を返すように、空欄を埋めてください。\n\nSELECT students.name, students.age, enrollments.course_id\nFROM students\n_____________ enrollments\nON students.student_id = enrollments.student_id\n\n|name |age|course_id|\n|Adam |23 |C0055    |\n|Adam |23 |C0066    |\n|Sarah|19 |C0077    |\n|John |36 |NULL     |" , 
         options: [
             "(A) ANTI JOIN",
             "(B) LEFT JOIN",
