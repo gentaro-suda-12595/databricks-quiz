@@ -13,7 +13,6 @@
         .form-group label { display: block; font-weight: bold; margin-bottom: 8px; color: #2c3e50; }
         select { width: 100%; padding: 12px; font-size: 1.1em; border-radius: 5px; border: 1px solid #bdc3c7; background: #fff; }
         
-        /* コース選択用の特別スタイル */
         #course-select { background: #e8f4f8; border: 2px solid #3498db; color: #2980b9; font-weight: bold; }
 
         #search-input { width: 100%; padding: 15px; font-size: 1.1em; border-radius: 5px; border: 1px solid #bdc3c7; margin-bottom: 20px; box-sizing: border-box; }
@@ -68,11 +67,9 @@
 </head>
 <body>
 
-    <!-- 出題条件選択画面 -->
     <div class="container" id="start-container">
         <h1>Databricks データエンジニア 問題集</h1>
         
-        <!-- 【追加】コース選択 -->
         <div class="form-group">
             <label for="course-select">📚 学習コース</label>
             <select id="course-select" onchange="changeCourse()">
@@ -97,6 +94,7 @@
                 <option value="all">すべての問題</option>
                 <option value="unanswered">未出題のみ</option>
                 <option value="incorrect">前回不正解のみ</option>
+                <option value="unanswered_incorrect">未出題 ＋ 前回不正解</option> <!-- ★追加 -->
             </select>
         </div>
 
@@ -198,7 +196,38 @@
             "MERGE INTO": "https://docs.databricks.com/ja/sql/language-manual/delta-merge-into.html",
             "Z-Order": "https://docs.databricks.com/ja/delta/data-skipping.html#z-order-by",
             "タイムトラベル": "https://docs.databricks.com/ja/delta/history.html",
-            "メダリオンアーキテクチャ": "https://docs.databricks.com/ja/lakehouse/medallion.html"
+            "メダリオンアーキテクチャ": "https://docs.databricks.com/ja/lakehouse/medallion.html",
+            "パイプライン": "https://docs.databricks.com/aws/ja/ldp/configure-pipeline",
+            "スキーマ推論": "https://docs.databricks.com/aws/ja/ingestion/cloud-object-storage/auto-loader/schema",
+            "Databricks Jobs": "https://docs.databricks.com/aws/ja/jobs/",
+            "Python wheel": "https://docs.databricks.com/aws/ja/jobs/tasks/python-wheel",
+            "REST API": "https://docs.databricks.com/aws/ja/reference/api,
+            "連続トリガー": "https://docs.databricks.com/aws/ja/ldp/concepts/pipeline-mode",
+            "PySpark": "https://docs.databricks.com/aws/ja/pyspark/basics",
+            "ジョブ通知": "https://docs.databricks.com/aws/ja/jobs/notifications",
+            "Azure Data Lake Storage": "https://docs.databricks.com/aws/ja/connect/storage/azure-storage",
+            "ディレクトリ一覧表示モード": "https://docs.databricks.com/aws/ja/ingestion/cloud-object-storage/auto-loader/directory-listing-mode",
+            "列マスク": "https://docs.databricks.com/aws/ja/data-governance/unity-catalog/filters-and-masks/",
+            "行フィルター": "https://docs.databricks.com/aws/ja/data-governance/unity-catalog/filters-and-masks/",
+            "ブロードキャスト結合": "https://docs.databricks.com/aws/ja/pyspark/reference/functions/broadcast",
+            "リネージ": "https://docs.databricks.com/aws/ja/data-governance/unity-catalog/data-lineage",
+            "Databricks Asset Bundle": "https://docs.databricks.com/aws/ja/dev-tools/bundles/",
+            "宣言型自動化バンドル": "https://docs.databricks.com/aws/ja/dev-tools/bundles/",
+            "Lakeflow Connect": "https://docs.databricks.com/aws/ja/ingestion/lakeflow-connect/",
+            "アダプティブクエリ実行": "https://docs.databricks.com/aws/ja/optimizations/aqe",
+            "スケジュールトリガー": "https://docs.databricks.com/aws/ja/jobs/triggers",
+            "ファイル到着トリガー": "https://docs.databricks.com/aws/ja/jobs/file-arrival-triggers",
+            "ACID": "https://docs.databricks.com/aws/ja/lakehouse/acid",
+            "Catalog Explorer": "https://docs.databricks.com/aws/ja/catalog-explorer/",
+            "カタログエクスプローラー": "https://docs.databricks.com/aws/ja/catalog-explorer/",
+            "ストリーミングテーブル": "https://docs.databricks.com/aws/ja/ldp/concepts/streaming-tables",
+            "SQL Warehouse": "https://docs.databricks.com/aws/ja/compute/sql-warehouse/",
+            "トランザクション": "https://docs.databricks.com/aws/ja/transactions/",
+            "ABAC": "https://docs.databricks.com/aws/ja/data-governance/unity-catalog/abac/core-concepts,
+            "デコレータ": "https://docs.databricks.com/aws/ja/ldp/developer/ldp-python-ref-expectations,
+            "データ品質制約": "https://docs.databricks.com/aws/ja/ldp/expectations,
+            "タスク値": "https://docs.databricks.com/aws/ja/jobs/task-values",
+            "Liquid Clustering": "https://docs.databricks.com/aws/ja/tables/clustering"
         };
 
         function addLinksToText(text) {
@@ -235,7 +264,7 @@
         const statBadge = document.getElementById('stat-badge');
         const categoryBadge = document.getElementById('category-badge');
         
-        const courseSelect = document.getElementById('course-select'); // 【追加】
+        const courseSelect = document.getElementById('course-select');
         const categorySelect = document.getElementById('category-select');
         const filterSelect = document.getElementById('filter-select');
         const countSelect = document.getElementById('question-count-select');
@@ -247,7 +276,6 @@
             const loadedStats = localStorage.getItem('db_quiz_stats');
             if (loadedStats) userStats = JSON.parse(loadedStats);
 
-            // 初期化時にコースに基づくジャンルをロード
             changeCourse();
 
             const savedSessionIndices = localStorage.getItem('db_quiz_session_indices');
@@ -270,12 +298,10 @@
             }
         }
 
-        // 【追加】コースが変更されたときの処理（ジャンル一覧の再生成）
         function changeCourse() {
             const selectedCourse = courseSelect.value;
             categorySelect.innerHTML = '<option value="all">すべてのジャンル</option>';
             
-            // 選択されたコースに属する問題のカテゴリのみを抽出
             const categories = [...new Set(quizData.filter(q => (q.course || 'normal') === selectedCourse).map(q => q.category || '未分類'))];
             
             categories.forEach(c => {
@@ -285,12 +311,11 @@
                 categorySelect.appendChild(opt);
             });
 
-            // 演習問題の場合は「すべてのジャンル」で固定してしまうのもアリですが、今回は選択可能にしています
             updateCountOptions();
         }
 
         function getFilteredIndices() {
-            const selectedCourse = courseSelect.value; // 【追加】
+            const selectedCourse = courseSelect.value;
             const filter = filterSelect.value;
             const categoryFilter = categorySelect.value;
             let indices = [];
@@ -299,7 +324,6 @@
                 const q = quizData[i];
                 const stat = userStats[i];
                 
-                // 【追加】コースによる完全隔離
                 const qCourse = q.course || 'normal';
                 if (qCourse !== selectedCourse) continue; 
 
@@ -312,6 +336,9 @@
                     if (!stat || stat.attempts === 0) indices.push(i);
                 } else if (filter === 'incorrect') {
                     if (stat && stat.lastStatus === 'incorrect') indices.push(i);
+                } else if (filter === 'unanswered_incorrect') {
+                    // ★追加: 未出題 (!stat || attempts === 0) OR 前回不正解 (lastStatus === 'incorrect')
+                    if (!stat || stat.attempts === 0 || stat.lastStatus === 'incorrect') indices.push(i);
                 }
             }
             return indices;
@@ -543,14 +570,10 @@
             updateCountOptions(); 
         }
 
-        // ==========================================
-        // ダッシュボード（コース隔離対応）
-        // ==========================================
         function openDashboardMode() {
             startContainer.classList.add('hidden');
             dashboardContainer.classList.remove('hidden');
             
-            // 現在選択しているコース名を取得してタイトルに反映
             const courseName = courseSelect.options[courseSelect.selectedIndex].text;
             document.getElementById('dashboard-title').textContent = `📊 ${courseName} の成績`;
             
@@ -568,7 +591,6 @@
             const statsByCategory = {};
             
             quizData.forEach((q, idx) => {
-                // 選択中のコースの問題だけを集計
                 const qCourse = q.course || 'normal';
                 if (qCourse !== selectedCourse) return;
 
@@ -636,9 +658,6 @@
             dashboardContent.insertBefore(overallDiv, dashboardContent.firstChild);
         }
 
-        // ==========================================
-        // 一覧・検索機能（コース隔離対応）
-        // ==========================================
         function openListMode() {
             startContainer.classList.add('hidden');
             listContainer.classList.remove('hidden');
@@ -662,7 +681,6 @@
             let count = 0;
 
             quizData.forEach((q) => {
-                // 選択中のコースの問題だけを検索対象にする
                 const qCourse = q.course || 'normal';
                 if (qCourse !== selectedCourse) return;
 
@@ -702,9 +720,6 @@
             }
         }
 
-        // ==========================================
-        // データ引き継ぎ機能
-        // ==========================================
         function openDataMode() {
             startContainer.classList.add('hidden');
             dataContainer.classList.remove('hidden');
