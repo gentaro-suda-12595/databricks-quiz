@@ -43,6 +43,9 @@
         .correct { background: #d4edda !important; border: 2px solid #c3e6cb !important; color: #155724; font-weight: bold; }
         .incorrect { background: #f8d7da !important; border: 2px solid #f5c6cb !important; color: #721c24; }
         
+        /* 複数選択時の見逃し正解用ハイライト */
+        .missed-correct { border: 2px dashed #27ae60 !important; color: #27ae60; font-weight: bold; background: #fdfdfd; }
+
         .explanation { display: none; margin-top: 20px; padding: 15px; background: #e8f4f8; border-left: 5px solid #3498db; border-radius: 4px; white-space: pre-wrap; }
         .doc-link { color: #2980b9; text-decoration: underline; font-weight: bold; }
         .doc-link:hover { color: #e67e22; }
@@ -84,7 +87,6 @@
         <div class="form-group">
             <label for="category-select">ジャンル（分野）</label>
             <select id="category-select" onchange="updateCountOptions()">
-                <!-- JSで動的に追加されます -->
             </select>
         </div>
 
@@ -94,7 +96,7 @@
                 <option value="all">すべての問題</option>
                 <option value="unanswered">未出題のみ</option>
                 <option value="incorrect">前回不正解のみ</option>
-                <option value="unanswered_incorrect">未出題 ＋ 前回不正解</option> <!-- ★追加 -->
+                <option value="unanswered_incorrect">未出題 ＋ 前回不正解</option>
             </select>
         </div>
 
@@ -229,17 +231,12 @@
             "タスク値": "https://docs.databricks.com/aws/ja/jobs/task-values",
             "Liquid Clustering": "https://docs.databricks.com/aws/ja/tables/clustering"
         };
-        
-        // キーワードを文字数が長い順にソート（例: "Bundles" を "Bundle" より先に判定して誤爆を防ぐ）
+
+        // ========== バグ修正版のリンク変換関数 ==========
         const keywords = Object.keys(officialLinks).sort((a, b) => b.length - a.length);
-        
-        // 正規表現の特殊文字をエスケープ
         const escapedKeywords = keywords.map(kw => kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
-        
-        // 1回の処理で全てのキーワードを検索する正規表現を作成（関数外で作ることで動作を高速化）
         const keywordRegex = new RegExp(`(${escapedKeywords.join('|')})`, "gi");
 
-        // 大文字小文字の違いを吸収して高速にURLを取得できる裏辞書を準備
         const lowerCaseLinks = {};
         for (const [key, url] of Object.entries(officialLinks)) {
             lowerCaseLinks[key.toLowerCase()] = url;
@@ -247,24 +244,21 @@
 
         function addLinksToText(text) {
             if (!text) return "";
-            
-            // XSS対策（HTMLタグの無効化）
             let htmlText = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
             
-            // 1回のパスで安全にリンク化（生成済みの<a>タグを壊さない）
             htmlText = htmlText.replace(keywordRegex, (match) => {
                 const url = lowerCaseLinks[match.toLowerCase()];
                 return `<a href="${url}" target="_blank" class="doc-link">${match}</a>`;
             });
-            
             return htmlText;
         }
-        
+        // ================================================
+
         let userStats = {}; 
         let currentSessionIndices = []; 
         let currentQuestionIndex = 0;   
         let userAnswers = [];           
-        let currentTempSelection = null; 
+        let currentTempSelection = [];  // ★複数選択対応のため配列に変更
 
         const startContainer = document.getElementById('start-container');
         const quizContainer = document.getElementById('quiz-container');
@@ -357,7 +351,6 @@
                 } else if (filter === 'incorrect') {
                     if (stat && stat.lastStatus === 'incorrect') indices.push(i);
                 } else if (filter === 'unanswered_incorrect') {
-                    // ★追加: 未出題 (!stat || attempts === 0) OR 前回不正解 (lastStatus === 'incorrect')
                     if (!stat || stat.attempts === 0 || stat.lastStatus === 'incorrect') indices.push(i);
                 }
             }
@@ -412,11 +405,12 @@
         }
 
         function loadQuestion() {
-            currentTempSelection = null; 
+            currentTempSelection = []; // ★リセット
             
             const originalIdx = currentSessionIndices[currentQuestionIndex];
             const currentQ = quizData[originalIdx];
             const stat = userStats[originalIdx];
+            const isMulti = Array.isArray(currentQ.answerIndex); // ★複数選択かどうかの判定
 
             statBadge.className = 'stat-badge';
             if (!stat || stat.attempts === 0) {
@@ -428,7 +422,13 @@
             }
 
             categoryBadge.textContent = currentQ.category || '未分類';
-            questionText.innerHTML = addLinksToText(currentQ.question);
+            
+            // 複数選択の場合はヒントを出す
+            let qText = currentQ.question;
+            if (isMulti) {
+                qText += `\n<span style="color:#e67e22; font-size:0.9em;">※複数選択（${currentQ.answerIndex.length}つ選んでください）</span>`;
+            }
+            questionText.innerHTML = addLinksToText(qText);
             
             optionsContainer.innerHTML = '';
             explanationBox.style.display = 'none';
@@ -452,14 +452,26 @@
                 button.className = 'option';
 
                 if (answeredIndex !== null) {
+                    // ★解答済みの場合のロジック（複数・単一両対応）
                     button.disabled = true;
-                    if (index === currentQ.answerIndex) {
-                        button.classList.add('correct');
-                    } else if (index === answeredIndex) {
-                        button.classList.add('incorrect');
+                    
+                    const answeredArr = Array.isArray(answeredIndex) ? answeredIndex : [answeredIndex];
+                    const correctArr = Array.isArray(currentQ.answerIndex) ? currentQ.answerIndex : [currentQ.answerIndex];
+                    
+                    if (answeredArr.includes(index)) {
+                        // 自分が選んだものが正解か不正解か
+                        if (correctArr.includes(index)) {
+                            button.classList.add('correct');
+                        } else {
+                            button.classList.add('incorrect');
+                        }
+                    } else if (correctArr.includes(index)) {
+                        // 自分が選ばなかったが、正解だったもの（見逃し）
+                        button.classList.add('missed-correct');
                     }
                 } else {
-                    button.onclick = () => selectTempOption(index, button);
+                    // 未解答の場合はクリックイベントを付与
+                    button.onclick = () => selectTempOption(index, button, isMulti);
                 }
                 optionsContainer.appendChild(button);
             });
@@ -472,21 +484,52 @@
             }
         }
 
-        function selectTempOption(selectedIndex, buttonElement) {
-            currentTempSelection = selectedIndex;
-            const buttons = optionsContainer.querySelectorAll('.option');
-            buttons.forEach(btn => btn.classList.remove('selected-temp'));
-            buttonElement.classList.add('selected-temp');
-            answerBtn.classList.remove('hidden');
+        // ★選択処理（単一・複数 両対応）
+        function selectTempOption(selectedIndex, buttonElement, isMulti) {
+            if (isMulti) {
+                // 複数選択：トグル式（オン・オフ）
+                const pos = currentTempSelection.indexOf(selectedIndex);
+                if (pos > -1) {
+                    currentTempSelection.splice(pos, 1);
+                    buttonElement.classList.remove('selected-temp');
+                } else {
+                    currentTempSelection.push(selectedIndex);
+                    buttonElement.classList.add('selected-temp');
+                }
+            } else {
+                // 単一選択：上書き
+                currentTempSelection = [selectedIndex];
+                const buttons = optionsContainer.querySelectorAll('.option');
+                buttons.forEach(btn => btn.classList.remove('selected-temp'));
+                buttonElement.classList.add('selected-temp');
+            }
+            
+            if (currentTempSelection.length > 0) {
+                answerBtn.classList.remove('hidden');
+            } else {
+                answerBtn.classList.add('hidden'); // 何も選ばれていない時は隠す
+            }
         }
 
         function submitAnswer() {
-            if (currentTempSelection === null) return;
-            
-            userAnswers[currentQuestionIndex] = currentTempSelection;
+            if (currentTempSelection.length === 0) return;
             
             const originalIdx = currentSessionIndices[currentQuestionIndex];
-            const isCorrect = (currentTempSelection === quizData[originalIdx].answerIndex);
+            const currentQ = quizData[originalIdx];
+            const isMulti = Array.isArray(currentQ.answerIndex);
+            
+            let isCorrect = false;
+            
+            if (isMulti) {
+                // 配列同士をソートして完全一致するか確認
+                const sortedTemp = [...currentTempSelection].sort();
+                const sortedAns = [...currentQ.answerIndex].sort();
+                isCorrect = JSON.stringify(sortedTemp) === JSON.stringify(sortedAns);
+                userAnswers[currentQuestionIndex] = [...currentTempSelection];
+            } else {
+                isCorrect = (currentTempSelection[0] === currentQ.answerIndex);
+                userAnswers[currentQuestionIndex] = currentTempSelection[0];
+            }
             
             if (!userStats[originalIdx]) {
                 userStats[originalIdx] = { attempts: 0, corrects: 0, lastStatus: '' };
@@ -551,12 +594,35 @@
             currentSessionIndices.forEach((originalIdx, i) => {
                 const q = quizData[originalIdx];
                 const userAnswer = userAnswers[i];
-                if (userAnswer === q.answerIndex) {
+                const isMulti = Array.isArray(q.answerIndex);
+                let isCorrect = false;
+                
+                if (isMulti) {
+                    const sortedUser = Array.isArray(userAnswer) ? [...userAnswer].sort() : [];
+                    const sortedAns = [...q.answerIndex].sort();
+                    isCorrect = JSON.stringify(sortedUser) === JSON.stringify(sortedAns);
+                } else {
+                    isCorrect = userAnswer === q.answerIndex;
+                }
+
+                if (isCorrect) {
                     score++;
                 } else {
+                    let selectedText = "未回答";
+                    if (userAnswer !== null) {
+                        if (Array.isArray(userAnswer)) {
+                            selectedText = userAnswer.map(idx => q.options[idx]).join("<br>");
+                        } else {
+                            selectedText = q.options[userAnswer];
+                        }
+                    }
+                    
+                    let correctText = isMulti ? q.answerIndex.map(idx => q.options[idx]).join("<br>") : q.options[q.answerIndex];
+
                     incorrectList.push({
                         question: q,
-                        selected: userAnswer !== null ? q.options[userAnswer] : "未回答"
+                        selected: selectedText,
+                        correct: correctText // ★追加: 正解のテキスト
                     });
                 }
             });
@@ -576,8 +642,8 @@
                     div.className = 'review-item';
                     
                     div.innerHTML = `<strong>Q. ${addLinksToText(item.question.question)}</strong><br><br>
-                                     <span style="color:#e74c3c;">あなたの回答: ${item.selected}</span><br>
-                                     <span style="color:#27ae60; font-weight:bold;">正解: ${item.question.options[item.question.answerIndex]}</span><br>
+                                     <span style="color:#e74c3c;">あなたの回答:<br>${item.selected}</span><br>
+                                     <span style="color:#27ae60; font-weight:bold;">正解:<br>${item.correct}</span><br>
                                      <div style="margin-top:10px; font-size:0.9em; color:#555; white-space: pre-wrap;">${addLinksToText(item.question.explanation)}</div>`;
                     reviewContainer.appendChild(div);
                 });
@@ -716,12 +782,13 @@
                     const div = document.createElement('div');
                     div.className = 'list-item';
                     
-                    const correctAnswer = q.options[q.answerIndex];
+                    const isMulti = Array.isArray(q.answerIndex);
+                    const correctText = isMulti ? q.answerIndex.map(idx => q.options[idx]).join("<br>") : q.options[q.answerIndex];
                     
                     div.innerHTML = `
                         <div class="category-badge">${q.category || '未分類'}</div>
                         <h4>${addLinksToText(q.question)}</h4>
-                        <div class="correct-answer">正解: ${correctAnswer}</div>
+                        <div class="correct-answer">正解:<br>${correctText}</div>
                         <div class="explanation-text"><strong>【解説】</strong><br>${addLinksToText(q.explanation)}</div>
                     `;
                     searchResults.appendChild(div);
